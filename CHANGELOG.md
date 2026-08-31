@@ -2,6 +2,12 @@
 
 ## 1.0.0a1 (unreleased)
 
+- Offer `full` (full-bleed) as a block width on the footer editing surface.
+  A footer is a full-bleed band, so `@@edit-footer` widens the editor's
+  text-block width allowlist for its own surface only, through
+  `AuroraEditView.text_block_widths` (auroraeditor 1.0.0a2). Body text on a
+  content page keeps the page grid. Existing footers are untouched: only the
+  allowed list moves, the default width does not.
 - Add the footer editing surface: `@@edit-footer` mounts the Aurora editor on
   the carrier's `footer` field, `PATCH <carrier>/@footerblocks` saves it, and
   a browser GET on that same URL redirects back to the carrier (where the

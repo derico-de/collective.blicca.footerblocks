@@ -68,6 +68,21 @@ class TestEditFooterView(EditingBase):
         assert config["contentUrl"] == f"{self.portal.absolute_url()}/@footerblocks"
         assert config["unlockUrl"] == f"{self.portal.absolute_url()}/@lock"
 
+    def test_text_blocks_may_go_full_bleed_on_the_footer(self):
+        """A footer is a full-bleed band, so its text blocks get `full`.
+
+        The base surface deliberately withholds it — a body paragraph on
+        a content page should not break out of the page grid. The footer
+        opts in; the server renderer already honours `full`.
+        """
+        view = self._called_view()
+        assert view.config()["blockWidths"] == [
+            "narrow",
+            "default",
+            "layout",
+            "full",
+        ]
+
     def test_no_metadata_link_on_the_footer_surface(self):
         view = self._called_view()
         assert view.show_metadata_link is False

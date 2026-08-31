@@ -28,6 +28,13 @@ class FooterEditView(AuroraFieldEditView):
     field_name = "footer"
     save_service = "@footerblocks"
 
+    # A footer is a full-bleed band, so its text blocks may go `full` —
+    # the width the base surface withholds because a body paragraph has
+    # no business breaking out of the page grid. Opting in here rather
+    # than in AuroraFieldEditView: a field surface is not full-bleed by
+    # nature, this one is.
+    text_block_widths = AuroraFieldEditView.text_block_widths + ("full",)
+
 
 class FooterBlocksPatch(FieldBlocksPatch):
     """PATCH @footerblocks — the footer's save target."""
