@@ -17,6 +17,7 @@ before the plone.pageletlayout footer rows (profiles/default/viewlets.xml)
 — the ``plonetheme.derico.contactband`` precedent.
 """
 
+from Acquisition import aq_base
 from Acquisition import aq_chain
 from Acquisition import aq_inner
 from plone.blicca.auroraeditor.rendering import blocks_css_urls
@@ -35,14 +36,23 @@ class FooterBlocksChromePagelet(ChromePagelet):
     ``@scope``-wrapped CSS (block add-on contract §6.1), so footer blocks
     are styled by exactly the sheets that style them in a page body.
 
-    No footer anywhere up the chain, or an empty container, renders
-    nothing: the element disappears rather than shipping an empty band.
+    The footer is an **Aurora (Plate) container**: a somersault block whose
+    tree carries the text plus any registered block add-on's ``ploneBlock``
+    nodes, all dispatched by the same pipeline that renders a page body.
+    Volto ``slate`` blocks are not supported — there is no
+    ``aurora-block-slate`` renderer, deliberately.
+
+    Only a footer that was actually **authored** renders. Dexterity serves
+    the behavior schema's *default* (``collective.volto.footer``'s slate
+    "Edit" seed) for a never-set field, so ``getattr`` alone cannot tell an
+    authored footer from the seed; the instance dict can. No footer up the
+    chain, a never-authored one, or an empty container renders nothing:
+    the element disappears rather than shipping an empty band.
     """
 
     def update(self):
         carrier = self._carrier()
-        footer = getattr(carrier, "footer", None) if carrier is not None else None
-        footer = footer or {}
+        footer = self._authored_footer(carrier)
         self.blocks_html = ""
         if carrier is not None and footer.get("blocks"):
             self.blocks_html = render_blocks(
@@ -51,6 +61,18 @@ class FooterBlocksChromePagelet(ChromePagelet):
                 footer.get("blocks"),
                 footer.get("blocks_layout"),
             )
+
+    @staticmethod
+    def _authored_footer(carrier):
+        """The persisted footer value, or ``{}`` — never the schema default.
+
+        Nearest-marker semantics stay mirrored to ``@inherit``: an ancestor
+        carrying the behavior but never authored yields an empty footer, it
+        does not fall through to a grandparent Volto would never consult.
+        """
+        if carrier is None:
+            return {}
+        return vars(aq_base(carrier)).get("footer") or {}
 
     def _carrier(self):
         """The nearest ancestor carrying the editable-footer behavior.

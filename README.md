@@ -38,21 +38,32 @@ chrome pagelet in the whole-body layout, inserted directly before the
 `.aurora-blocks-view` is the public scope root of the shared blocks CSS and
 of every block add-on's `@scope`-wrapped CSS (block add-on contract §6.1),
 so footer blocks are styled by exactly the sheets that style them in a page
-body. No footer up the chain, or an empty container, renders nothing.
+body. No footer up the chain, a never-authored one, or an empty container
+renders nothing.
 
 A language folder or subsite overrides the site-wide footer by enabling the
 `collective.volto.footer.editable` behavior on its type and authoring its
 own `footer` value — nearest ancestor wins, exactly like `@inherit`.
 
+## Aurora only — no slate
+
+The footer is an **Aurora (Plate) container**: one somersault block whose
+tree carries the text (paragraphs, marks, links, lists) plus any registered
+block add-on's `ploneBlock` nodes — all dispatched by the very pipeline
+that renders a page body, so every installed aurora block works in the
+footer. Volto `slate` blocks are deliberately unsupported (there is no
+`aurora-block-slate` renderer).
+
+Only an **authored** footer renders: Dexterity serves the behavior schema's
+default (`collective.volto.footer`'s slate "Edit" seed) for a never-set
+field, and the pagelet reads only the persisted value — a fresh site shows
+no footer element at all instead of invisible slate placeholders.
+
 ## Current limits
 
-- The footer is expected to be **authored through Aurora** (a somersault
-  container). A Volto-authored footer of top-level `slate` blocks renders as
-  invisible `block-unrendered` placeholders until an `aurora-block-slate`
-  renderer exists — including `collective.volto.footer`'s default "Edit"
-  seed on a never-authored site.
 - The Aurora **editing surface** for the footer field (the JS half, to be
-  published as `aurora-footerblocks`) is not part of this release.
+  published as `aurora-footerblocks`) is not part of this release; author
+  the `footer` field over the REST API meanwhile.
 
 ## Development
 

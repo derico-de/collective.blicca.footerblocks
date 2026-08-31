@@ -97,14 +97,60 @@ class TestRendering(RenderingBase):
         self.portal.footer = footer_value("inherited words")
         assert "inherited words" in self._render(self.portal.somewhere.deeper)
 
-    def test_unauthored_footer_renders_only_invisible_placeholders(self):
-        """A never-authored site serves the behavior's default seed — the
-        same value ``@inherit`` hands a Volto frontend. Its ``slate`` block
-        has no aurora renderer, so it dispatches to the invisible
-        ``block-unrendered`` placeholder: nothing visible, by design."""
-        markup = self._render(self.portal.somewhere)
-        assert "block-unrendered" in markup
-        assert 'data-block-type="slate"' in markup
+    def test_unauthored_footer_renders_nothing(self):
+        """Dexterity serves the behavior schema's default (the slate "Edit"
+        seed) for a never-set field; the pagelet reads only the persisted
+        value, so a never-authored footer renders nothing at all — no
+        wrapper, no invisible slate placeholders."""
+        assert self._render(self.portal.somewhere).strip() == ""
+
+    def test_block_addon_nodes_dispatch_to_their_renderer(self):
+        """ "Our blocks" work in the footer: a ``ploneBlock`` node inside the
+        somersault tree dispatches to its ``aurora-block-<@type>`` view,
+        exactly as in a page body."""
+        from plone.blicca.auroraeditor.rendering import BaseBlockView
+        from zope.component import getGlobalSiteManager
+        from zope.interface import Interface
+
+        class TestBlockView(BaseBlockView):
+            def __call__(self):
+                return '<div class="block-testblock">from the footer</div>'
+
+        gsm = getGlobalSiteManager()
+        gsm.registerAdapter(
+            TestBlockView,
+            (Interface, Interface),
+            Interface,
+            name="aurora-block-testblock",
+        )
+        try:
+            self.portal.footer = {
+                "blocks": {
+                    SOMERSAULT_BLOCK_ID: {
+                        "@type": SOMERSAULT_BLOCK_TYPE,
+                        "value": [
+                            {"type": "p", "children": [{"text": "before"}]},
+                            {
+                                "type": "ploneBlock",
+                                "@type": "testblock",
+                                "children": [{"text": ""}],
+                            },
+                        ],
+                    }
+                },
+                "blocks_layout": {"items": [SOMERSAULT_BLOCK_ID]},
+            }
+            markup = self._render(self.portal.somewhere)
+        finally:
+            gsm.unregisterAdapter(
+                TestBlockView,
+                (Interface, Interface),
+                Interface,
+                name="aurora-block-testblock",
+            )
+        assert "block-testblock" in markup
+        assert "from the footer" in markup
+        assert "before" in markup
 
     def test_empty_footer_container_renders_nothing(self):
         self.portal.footer = {"blocks": {}, "blocks_layout": {"items": []}}
