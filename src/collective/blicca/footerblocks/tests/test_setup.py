@@ -1,4 +1,5 @@
 """Test collective.blicca.footerblocks installation."""
+
 import pytest
 from plone import api
 from plone.app.testing import setRoles
@@ -19,11 +20,17 @@ class TestSetup:
 
     def test_browserlayer(self):
         """Test browserlayer is registered."""
-        # Add an actual browserlayer check if your addon registers one, e.g.:
-        # from plone.browserlayer import utils
-        # from collective.blicca.footerblocks.interfaces import ICollectiveBliccaFooterblocksLayer
-        # assert ICollectiveBliccaFooterblocksLayer in utils.registered_layers()
-        assert True
+        from plone.browserlayer import utils
+
+        from collective.blicca.footerblocks.interfaces import ICollectiveBliccaFooterblocksLayer
+
+        assert ICollectiveBliccaFooterblocksLayer in utils.registered_layers()
+
+    def test_footer_behavior_available(self):
+        """The dependency profile enabled the behavior on the site type."""
+        from collective.volto.footer.behaviors.footer import IEditableFooterMarker
+
+        assert IEditableFooterMarker.providedBy(self.portal)
 
 
 class TestUninstall:

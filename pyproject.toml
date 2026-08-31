@@ -25,6 +25,9 @@ keywords = ["Plone", "CMS"]
 
 dependencies = [
     "Plone>=6.0",
+    "collective.volto.footer",
+    "plone.blicca.auroraeditor>=1.0.0a2",
+    "plone.pageletlayout",
     "setuptools<81",
 ]
 

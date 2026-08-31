@@ -1,5 +1,6 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
     xmlns:i18n="http://namespaces.zope.org/i18n"
     xmlns:plone="http://namespaces.plone.org/plone"
@@ -8,6 +9,36 @@
   <i18n:registerTranslations directory="locales" />
 
   <include file="permissions.zcml" />
+
+  <include package="plone.pageletlayout" file="meta.zcml" />
+
+  <!-- The footer-blocks element: a chrome pagelet plus the wrapper viewlet
+       that slots it into the whole-body layout manager; its position among
+       the footer rows comes from profiles/default/viewlets.xml. -->
+  <plone:chromepagelet
+      name="collective.blicca.footerblocks.footerblocks"
+      class=".pagelets.FooterBlocksChromePagelet"
+      template="templates/footerblocks.pt"
+      layer=".interfaces.ICollectiveBliccaFooterblocksLayer"
+      />
+  <browser:viewlet
+      name="collective.blicca.footerblocks.footerblocks"
+      pagelet="collective.blicca.footerblocks.footerblocks"
+      class="plone.pageletlayout.pagelets.layout.PageletViewlet"
+      manager="plone.pageletlayout.pagelets.layout.ILayoutManager"
+      layer=".interfaces.ICollectiveBliccaFooterblocksLayer"
+      permission="zope2.View"
+      />
+
+  <!-- Same provider name as the base styles pagelet, this add-on's layer:
+       every page's head gets the blocks stylesheets the footer needs
+       (the layer extends IPlonePageletlayoutLayer, so this registration
+       is unambiguously more specific). -->
+  <plone:chromepagelet
+      name="plone.pageletlayout.styles"
+      class=".pagelets.FooterStylesChromePagelet"
+      layer=".interfaces.ICollectiveBliccaFooterblocksLayer"
+      />
 
   <genericsetup:registerProfile
       name="default"

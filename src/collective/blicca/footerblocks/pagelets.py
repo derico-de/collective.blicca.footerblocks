@@ -1,0 +1,83 @@
+"""The footer-blocks chrome pagelet, and the stylesheet plumbing it needs.
+
+The footer's *content* is editable blocks, stored the way the Volto
+ecosystem stores an editable footer: ``collective.volto.footer``'s
+``footer`` JSONField (behavior ``collective.volto.footer.editable``,
+enabled on the Plone Site type by that add-on's profile). Volto frontends
+read the field through plone.restapi's ``@inherit`` expander — the nearest
+ancestor carrying the behavior wins, so a language folder or subsite can
+override the site-wide footer by enabling the behavior on its type.
+:class:`FooterBlocksChromePagelet` is the Blicca half: the same
+nearest-ancestor lookup, walked directly over the acquisition chain, and
+the blocks rendered server-side through the promised
+:func:`~plone.blicca.auroraeditor.rendering.render_blocks` pipeline.
+
+The footer's *place* is a chrome pagelet in the whole-body layout, inserted
+before the plone.pageletlayout footer rows (profiles/default/viewlets.xml)
+— the ``plonetheme.derico.contactband`` precedent.
+"""
+
+from Acquisition import aq_chain
+from Acquisition import aq_inner
+from plone.blicca.auroraeditor.rendering import blocks_css_urls
+from plone.blicca.auroraeditor.rendering import render_blocks
+from plone.pageletlayout.chrome import ChromePagelet
+from plone.pageletlayout.pagelets.head import StylesChromePagelet
+
+from collective.volto.footer.behaviors.footer import IEditableFooterMarker
+
+
+class FooterBlocksChromePagelet(ChromePagelet):
+    """Render the inherited footer blocks at the tail of every page.
+
+    The template wraps the markup in ``.aurora-blocks-view`` — the public
+    scope root of the shared blocks stylesheet and of every block add-on's
+    ``@scope``-wrapped CSS (block add-on contract §6.1), so footer blocks
+    are styled by exactly the sheets that style them in a page body.
+
+    No footer anywhere up the chain, or an empty container, renders
+    nothing: the element disappears rather than shipping an empty band.
+    """
+
+    def update(self):
+        carrier = self._carrier()
+        footer = getattr(carrier, "footer", None) if carrier is not None else None
+        footer = footer or {}
+        self.blocks_html = ""
+        if carrier is not None and footer.get("blocks"):
+            self.blocks_html = render_blocks(
+                carrier,
+                self.request,
+                footer.get("blocks"),
+                footer.get("blocks_layout"),
+            )
+
+    def _carrier(self):
+        """The nearest ancestor carrying the editable-footer behavior.
+
+        The server-side mirror of the ``@inherit`` lookup: closest object
+        in the acquisition chain whose behavior marker is provided.
+        """
+        for obj in aq_chain(aq_inner(self.context)):
+            if IEditableFooterMarker.providedBy(obj):
+                return obj
+        return None
+
+
+class FooterStylesChromePagelet(StylesChromePagelet):
+    """The head styles provider, plus the blocks stylesheets.
+
+    ``blocks_view.pt`` emits the shared blocks CSS and the block add-ons'
+    CSS in its head slot — on blocks pages only. The footer renders blocks
+    on *every* page, so this override appends the same links (same busted
+    URLs, same order, contract §6.3) after the resource-registry output.
+    On a blocks page the links then appear twice; the URLs are identical,
+    so the browser fetches once and the idempotent rules apply once
+    effectively.
+    """
+
+    def render(self):
+        links = "".join(
+            f'<link rel="stylesheet" href="{url}" />' for url in blocks_css_urls(self.context)
+        )
+        return super().render() + links
