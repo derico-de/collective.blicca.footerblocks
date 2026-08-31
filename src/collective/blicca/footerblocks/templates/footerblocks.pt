@@ -1,6 +1,13 @@
 <footer class="element-footerblocks"
         xmlns:tal="http://xml.zope.org/namespaces/tal"
-        tal:condition="view/blocks_html">
+        xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+        i18n:domain="collective.blicca.footerblocks"
+        tal:condition="python: view.blocks_html or view.edit_url">
   <div class="aurora-blocks-view"
+       tal:condition="view/blocks_html"
        tal:content="structure view/blocks_html">rendered footer blocks</div>
+  <a class="element-footerblocks-edit"
+     tal:condition="view/edit_url"
+     tal:attributes="href view/edit_url"
+     i18n:translate="edit_footer">Edit footer</a>
 </footer>

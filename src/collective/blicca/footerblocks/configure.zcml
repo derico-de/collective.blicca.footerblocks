@@ -11,6 +11,7 @@
   <include file="permissions.zcml" />
 
   <include package="plone.pageletlayout" file="meta.zcml" />
+  <include package="plone.rest" file="meta.zcml" />
 
   <!-- The footer-blocks element: a chrome pagelet plus the wrapper viewlet
        that slots it into the whole-body layout manager; its position among
@@ -28,6 +29,34 @@
       manager="plone.pageletlayout.pagelets.layout.ILayoutManager"
       layer=".interfaces.ICollectiveBliccaFooterblocksLayer"
       permission="zope2.View"
+      />
+
+  <!-- The footer editing surface (auroraeditor ADR 0015): the edit page,
+       the plone.rest save target the mount contract's contentUrl points
+       at, and the browser-GET redirect at the same name (the host pattern
+       navigates to contentUrl after save/cancel). All on the behavior's
+       marker: the surface exists exactly where a footer can be stored. -->
+  <browser:page
+      name="edit-footer"
+      for="collective.volto.footer.behaviors.footer.IEditableFooterMarker"
+      class=".editing.FooterEditView"
+      permission="cmf.ModifyPortalContent"
+      layer=".interfaces.ICollectiveBliccaFooterblocksLayer"
+      />
+  <plone:service
+      method="PATCH"
+      name="@footerblocks"
+      for="collective.volto.footer.behaviors.footer.IEditableFooterMarker"
+      factory=".editing.FooterBlocksPatch"
+      permission="cmf.ModifyPortalContent"
+      layer=".interfaces.ICollectiveBliccaFooterblocksLayer"
+      />
+  <browser:page
+      name="@footerblocks"
+      for="collective.volto.footer.behaviors.footer.IEditableFooterMarker"
+      class="plone.blicca.auroraeditor.editing.FieldSurfaceRedirect"
+      permission="zope2.View"
+      layer=".interfaces.ICollectiveBliccaFooterblocksLayer"
       />
 
   <!-- Same provider name as the base styles pagelet, this add-on's layer:

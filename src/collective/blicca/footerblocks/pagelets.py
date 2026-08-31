@@ -17,6 +17,7 @@ before the plone.pageletlayout footer rows (profiles/default/viewlets.xml)
 — the ``plonetheme.derico.contactband`` precedent.
 """
 
+from AccessControl import getSecurityManager
 from Acquisition import aq_base
 from Acquisition import aq_chain
 from Acquisition import aq_inner
@@ -24,6 +25,7 @@ from plone.blicca.auroraeditor.rendering import blocks_css_urls
 from plone.blicca.auroraeditor.rendering import render_blocks
 from plone.pageletlayout.chrome import ChromePagelet
 from plone.pageletlayout.pagelets.head import StylesChromePagelet
+from Products.CMFCore.permissions import ModifyPortalContent
 
 from collective.volto.footer.behaviors.footer import IEditableFooterMarker
 
@@ -61,6 +63,23 @@ class FooterBlocksChromePagelet(ChromePagelet):
                 footer.get("blocks"),
                 footer.get("blocks_layout"),
             )
+        self.edit_url = self._edit_url(carrier)
+
+    def _edit_url(self, carrier):
+        """The footer's Aurora surface, for those allowed to author it.
+
+        The edit affordance has to live in the footer itself: the carrier
+        is an ancestor of the page being viewed (usually the site root),
+        so its own edit chrome is nowhere near, and an unauthored footer
+        renders no markup at all — without this link there is no way in
+        but typing the URL. Visitors get nothing, so an unauthored footer
+        stays invisible to them (element and all).
+        """
+        if carrier is None:
+            return None
+        if not getSecurityManager().checkPermission(ModifyPortalContent, carrier):
+            return None
+        return f"{carrier.absolute_url()}/@@edit-footer"
 
     @staticmethod
     def _authored_footer(carrier):

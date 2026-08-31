@@ -14,3 +14,7 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: collective.blicca.footerblocks\n"
 "X-Is-Fallback-For: en-au en-gb en-us en-ca\n"
+
+#: ../templates/footerblocks.pt
+msgid "edit_footer"
+msgstr "Edit footer"

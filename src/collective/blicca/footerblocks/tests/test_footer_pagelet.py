@@ -97,12 +97,14 @@ class TestRendering(RenderingBase):
         self.portal.footer = footer_value("inherited words")
         assert "inherited words" in self._render(self.portal.somewhere.deeper)
 
-    def test_unauthored_footer_renders_nothing(self):
+    def test_unauthored_footer_renders_no_blocks(self):
         """Dexterity serves the behavior schema's default (the slate "Edit"
         seed) for a never-set field; the pagelet reads only the persisted
-        value, so a never-authored footer renders nothing at all — no
-        wrapper, no invisible slate placeholders."""
-        assert self._render(self.portal.somewhere).strip() == ""
+        value, so a never-authored footer contributes no blocks at all —
+        no wrapper, no invisible slate placeholders. (For an editor the
+        element still carries the edit link — see test_footer_editing.)"""
+        markup = self._render(self.portal.somewhere)
+        assert "aurora-blocks-view" not in markup
 
     def test_block_addon_nodes_dispatch_to_their_renderer(self):
         """ "Our blocks" work in the footer: a ``ploneBlock`` node inside the
@@ -152,9 +154,9 @@ class TestRendering(RenderingBase):
         assert "from the footer" in markup
         assert "before" in markup
 
-    def test_empty_footer_container_renders_nothing(self):
+    def test_empty_footer_container_renders_no_blocks(self):
         self.portal.footer = {"blocks": {}, "blocks_layout": {"items": []}}
-        assert self._render(self.portal.somewhere).strip() == ""
+        assert "aurora-blocks-view" not in self._render(self.portal.somewhere)
 
 
 class TestStyles(RenderingBase):
