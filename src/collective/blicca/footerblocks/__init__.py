@@ -1,0 +1,1 @@
+"""Collective Blicca Footerblocks."""
