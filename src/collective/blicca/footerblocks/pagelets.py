@@ -13,8 +13,10 @@ the blocks rendered server-side through the promised
 :func:`~plone.blicca.auroraeditor.rendering.render_blocks` pipeline.
 
 The footer's *place* is a chrome pagelet in the whole-body layout, inserted
-before the plone.pageletlayout footer rows (profiles/default/viewlets.xml)
-— the ``plonetheme.derico.contactband`` precedent.
+before the plone.pageletlayout footer rows (profiles/default/viewlets.xml) —
+the way a theme adds a new element to Clara's page tail. plonetheme.derico's
+hard-coded contact band was the precedent, and is the thing this replaces:
+the same closing call to action, authored rather than compiled in.
 """
 
 from AccessControl import getSecurityManager
