@@ -12,6 +12,7 @@ class HiddenProfiles:
         """Return list of profiles that should not be available for install."""
         return [
             "collective.blicca.footerblocks:uninstall",
+            "collective.blicca.footerblocks.upgrades:1001",
         ]
 
 

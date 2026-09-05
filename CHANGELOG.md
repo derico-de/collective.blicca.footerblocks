@@ -2,6 +2,14 @@
 
 ## 1.0.0a1 (unreleased)
 
+- Remove the `footer_edit` object action on upgrade to profile version 1001.
+  An earlier build reached the footer through a Plone object action whose
+  `available_expr` traversed `@@footer-edit-action`; the Footer tab in the
+  Aurora editor replaced both, and a site that had imported the action raises
+  `AttributeError` on every page that renders the toolbar until it is gone.
+  Sites that never had it are untouched — GenericSetup skips a `remove` for an
+  id that is not there — and a fresh install is stamped 1001 already.
+
 - Offer `full` (full-bleed) as a block width on the footer editing surface.
   A footer is a full-bleed band, so `@@edit-footer` widens the editor's
   text-block width allowlist for its own surface only, through

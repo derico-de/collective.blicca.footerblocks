@@ -17,13 +17,8 @@
 
     <genericsetup:upgradeStep
         title="Remove the footer edit object action"
-        description="A custom upgrade step"
+        description="The Footer tab in the Aurora editor replaced it"
         handler=".v1001.upgrade"
-        />
-
-    <genericsetup:upgradeDepends
-        title="Apply profile version 1001"
-        import_profile="collective.blicca.footerblocks.upgrades:1001"
         />
 
   </genericsetup:upgradeSteps>

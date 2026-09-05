@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<object name="portal_actions"
+        meta_type="Plone Actions Tool">
+  <object name="object" meta_type="CMF Action Category">
+    <!-- The footer used to be reached through an object action whose
+         available_expr traversed @@footer-edit-action; the Footer tab in
+         the Aurora editor replaced both. A site that imported the action
+         raises AttributeError on every page that renders the toolbar until
+         it is gone. Sites that never had it are unaffected: GenericSetup
+         skips a remove for an id that is not there. -->
+    <object name="footer_edit" remove="True"/>
+  </object>
+</object>
