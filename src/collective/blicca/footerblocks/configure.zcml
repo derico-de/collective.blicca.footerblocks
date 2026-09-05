@@ -101,4 +101,7 @@
       handler="collective.blicca.footerblocks.setuphandlers.uninstall"
       />
 
+
+  <include package=".upgrades" />
+
 </configure>
