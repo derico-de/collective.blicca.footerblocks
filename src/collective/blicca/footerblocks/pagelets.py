@@ -19,7 +19,6 @@ hard-coded contact band was the precedent, and is the thing this replaces:
 the same closing call to action, authored rather than compiled in.
 """
 
-from AccessControl import getSecurityManager
 from Acquisition import aq_base
 from Acquisition import aq_chain
 from Acquisition import aq_inner
@@ -27,9 +26,16 @@ from plone.blicca.auroraeditor.rendering import blocks_css_urls
 from plone.blicca.auroraeditor.rendering import render_blocks
 from plone.pageletlayout.chrome import ChromePagelet
 from plone.pageletlayout.pagelets.head import StylesChromePagelet
-from Products.CMFCore.permissions import ModifyPortalContent
 
 from collective.volto.footer.behaviors.footer import IEditableFooterMarker
+
+
+def footer_carrier(context):
+    """Return the nearest ancestor that owns an editable footer."""
+    for obj in aq_chain(aq_inner(context)):
+        if IEditableFooterMarker.providedBy(obj):
+            return obj
+    return None
 
 
 class FooterBlocksChromePagelet(ChromePagelet):
@@ -55,9 +61,12 @@ class FooterBlocksChromePagelet(ChromePagelet):
     """
 
     def update(self):
+        self.blocks_html = ""
+        if self._is_footer_editor():
+            return
+
         carrier = self._carrier()
         footer = self._authored_footer(carrier)
-        self.blocks_html = ""
         if carrier is not None and footer.get("blocks"):
             self.blocks_html = render_blocks(
                 carrier,
@@ -65,23 +74,14 @@ class FooterBlocksChromePagelet(ChromePagelet):
                 footer.get("blocks"),
                 footer.get("blocks_layout"),
             )
-        self.edit_url = self._edit_url(carrier)
 
-    def _edit_url(self, carrier):
-        """The footer's Aurora surface, for those allowed to author it.
-
-        The edit affordance has to live in the footer itself: the carrier
-        is an ancestor of the page being viewed (usually the site root),
-        so its own edit chrome is nowhere near, and an unauthored footer
-        renders no markup at all — without this link there is no way in
-        but typing the URL. Visitors get nothing, so an unauthored footer
-        stays invisible to them (element and all).
-        """
-        if carrier is None:
-            return None
-        if not getSecurityManager().checkPermission(ModifyPortalContent, carrier):
-            return None
-        return f"{carrier.absolute_url()}/@@edit-footer"
+    def _is_footer_editor(self):
+        """Keep the published footer out of its own editing surface."""
+        for key in ("ACTUAL_URL", "URL"):
+            url = self.request.get(key, "")
+            if url.rstrip("/").endswith("/@@edit-footer"):
+                return True
+        return False
 
     @staticmethod
     def _authored_footer(carrier):
@@ -96,15 +96,8 @@ class FooterBlocksChromePagelet(ChromePagelet):
         return vars(aq_base(carrier)).get("footer") or {}
 
     def _carrier(self):
-        """The nearest ancestor carrying the editable-footer behavior.
-
-        The server-side mirror of the ``@inherit`` lookup: closest object
-        in the acquisition chain whose behavior marker is provided.
-        """
-        for obj in aq_chain(aq_inner(self.context)):
-            if IEditableFooterMarker.providedBy(obj):
-                return obj
-        return None
+        """The nearest ancestor carrying the editable-footer behavior."""
+        return footer_carrier(self.context)
 
 
 class FooterStylesChromePagelet(StylesChromePagelet):

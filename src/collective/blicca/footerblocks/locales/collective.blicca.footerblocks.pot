@@ -15,6 +15,6 @@ msgstr ""
 "Domain: collective.blicca.footerblocks\n"
 "X-Is-Fallback-For: en-au en-gb en-us en-ca\n"
 
-#: ../templates/footerblocks.pt
-msgid "edit_footer"
-msgstr "Edit footer"
+#: ../tabs.py
+msgid "Footer"
+msgstr "Footer"

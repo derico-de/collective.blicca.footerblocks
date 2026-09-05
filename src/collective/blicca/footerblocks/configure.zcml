@@ -59,6 +59,15 @@
       layer=".interfaces.ICollectiveBliccaFooterblocksLayer"
       />
 
+  <!-- The Footer tab of the editor's edit-area strip (auroraeditor
+       browser/tabs.py): the carrier is an ancestor of the page being
+       edited, so the strip is where authors reach its footer. -->
+  <subscriber
+      for="* .interfaces.ICollectiveBliccaFooterblocksLayer"
+      provides="plone.blicca.auroraeditor.interfaces.IEditSurfaceTab"
+      factory=".tabs.FooterTab"
+      />
+
   <!-- Same provider name as the base styles pagelet, this add-on's layer:
        every page's head gets the blocks stylesheets the footer needs
        (the layer extends IPlonePageletlayoutLayer, so this registration

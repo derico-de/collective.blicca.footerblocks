@@ -28,6 +28,10 @@ class FooterEditView(AuroraFieldEditView):
     field_name = "footer"
     save_service = "@footerblocks"
 
+    # This surface IS the strip's Footer tab (tabs.py), so the strip marks
+    # it active here instead of Blocks.
+    surface_id = "footer"
+
     # A footer is a full-bleed band, so its text blocks may go `full` —
     # the width the base surface withholds because a body paragraph has
     # no business breaking out of the page grid. Opting in here rather

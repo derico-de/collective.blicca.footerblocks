@@ -1,4 +1,4 @@
-"""The footer editing surface: view, save service, redirect, edit link.
+"""The footer editing surface: view, save service, redirect, and chrome policy.
 
 The field-surface machinery itself (slate adoption, transformer pipeline)
 is pinned in plone.blicca.auroraeditor's promised-API tests; here we pin
@@ -83,16 +83,17 @@ class TestEditFooterView(EditingBase):
             "full",
         ]
 
-    def test_no_metadata_link_on_the_footer_surface(self):
-        view = self._called_view()
-        assert view.show_metadata_link is False
+    def test_the_surface_is_the_strips_footer_tab(self):
+        assert self._called_view().surface_id == "footer"
 
     def test_page_mounts_the_editor_host(self):
         view = getMultiAdapter((self.portal, self.request), name="edit-footer")
         markup = view()
         assert "pat-auroraeditor" in markup
         assert "@footerblocks" in markup
-        assert "aurora-edit-metadata" not in markup
+        # the same edit-area strip the blocks canvas renders, Footer lit
+        assert "aurora-edit-tabs" in markup
+        assert 'aria-current="page"' in markup
 
     def test_authored_footer_feeds_the_editor(self):
         self.portal.footer = somersault_footer(
@@ -258,7 +259,7 @@ class TestSaveUrlRedirect(EditingBase):
         assert response.getHeader("Location") == self.portal.absolute_url()
 
 
-class TestPageletEditLink(EditingBase):
+class TestFooterChromePolicy(EditingBase):
     def _render(self, context):
         from collective.blicca.footerblocks.pagelets import FooterBlocksChromePagelet
 
@@ -266,20 +267,24 @@ class TestPageletEditLink(EditingBase):
         pagelet.update()
         return pagelet.render()
 
-    def test_editors_get_the_edit_affordance_even_before_authoring(self):
-        """A never-authored footer renders nothing to visitors — the link
-        is the only way in for someone allowed to author it."""
+    def test_unauthored_footer_adds_no_empty_band_for_editors(self):
+        """The toolbar action is now the way into an unauthored footer."""
+        assert self._render(self.portal).strip() == ""
+
+    def test_authored_footer_has_no_inline_edit_link(self):
+        self.portal.footer = somersault_footer(
+            [{"type": "p", "children": [{"text": "footer words"}]}]
+        )
         markup = self._render(self.portal)
-        assert "element-footerblocks" in markup
-        assert f'{self.portal.absolute_url()}/@@edit-footer' in markup
+        assert "footer words" in markup
+        assert "element-footerblocks-edit" not in markup
+        assert "@@edit-footer" not in markup
 
-    def test_the_link_points_at_the_carrier_not_the_current_page(self):
-        self.portal.invokeFactory("Document", "somewhere", title="Somewhere")
-        markup = self._render(self.portal.somewhere)
-        assert f'{self.portal.absolute_url()}/@@edit-footer' in markup
-
-    def test_visitors_see_no_link_and_no_empty_band(self):
-        logout()
+    def test_footer_is_hidden_on_its_editing_surface(self):
+        self.portal.footer = somersault_footer(
+            [{"type": "p", "children": [{"text": "words being edited"}]}]
+        )
+        self.request["ACTUAL_URL"] = f"{self.portal.absolute_url()}/@@edit-footer"
         assert self._render(self.portal).strip() == ""
 
     def test_visitors_still_see_an_authored_footer(self):

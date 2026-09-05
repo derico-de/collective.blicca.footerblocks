@@ -21,10 +21,10 @@ and mounts the Aurora editor on it.
 - **Blocks in the footer.** Paragraphs, links, lists, and every Aurora block
   add-on installed on the site, for example an actions block for the site
   actions or a promo block for a closing call to action.
-- **Edit in place.** People allowed to edit the footer's carrier see an
-  "Edit footer" link in the footer that opens the Aurora editor on the footer
-  content. Full-bleed block widths are allowed there, since a footer is a
-  full-width band.
+- **A tab in the editor.** People allowed to edit the footer's carrier get a
+  **Footer** tab on top of the Aurora edit area, after **Blocks** and
+  **Content**. It opens the editor on the inherited footer; full-bleed block
+  widths are allowed because a footer is a full-width band.
 - **Inherited down the tree.** The footer of the nearest ancestor that has
   the editable-footer behavior is shown. Enable the behavior on a folder type
   to give a section or a language its own footer.
@@ -73,8 +73,8 @@ profile. Installing it:
 
 1. Log in with a role that may edit the site root (or the folder that
    carries the footer).
-2. Scroll to the bottom of any page and click **Edit footer**. On a fresh
-   site there is no footer yet, so the link is all you see there.
+2. Open any page in the Aurora editor and pick the **Footer** tab on top of
+   the edit area. The tab is there before the first footer block is authored.
 3. Compose the footer in the Aurora editor and save. You are taken back to
    the page, footer on display.
 
@@ -99,13 +99,13 @@ block.
 ```html
 <footer class="element-footerblocks">
   <div class="aurora-blocks-view">…rendered blocks…</div>
-  <a class="element-footerblocks-edit" href="…/@@edit-footer">Edit footer</a>
 </footer>
 ```
 
-The blocks container is emitted only when the footer has blocks. The edit
-link is emitted only for users who may edit the carrier. Visitors to a site
-without an authored footer get no `<footer>` element.
+The element is emitted only when the footer has blocks, and it is suppressed
+on the `@@edit-footer` surface so the content being edited is not repeated
+below the editor. Visitors to a site without an authored footer get no
+`<footer>` element.
 
 `.aurora-blocks-view` is the public scope root of the shared blocks CSS and
 of every block add-on's scoped stylesheet, so a theme styles footer blocks
@@ -123,13 +123,12 @@ through `.element-footerblocks`.
   the same pipeline that renders a page body. Only a persisted value counts;
   the behavior's schema default is ignored, which is what keeps an
   unauthored footer invisible.
-- **Editing.** Three registrations on the behavior's marker interface form
-  the editing surface: the `@@edit-footer` page mounts the Aurora editor on
-  the footer field, a `PATCH` to `@footerblocks` saves the container back
-  into the field after running the block deserialization transformers, and a
-  browser `GET` on `@footerblocks` redirects to the carrier, which is where
-  the editor navigates after save or cancel. Editing requires the Modify
-  portal content permission on the carrier.
+- **Editing.** An ``IEditSurfaceTab`` subscriber resolves the nearest footer
+  carrier and puts a **Footer** tab in the Aurora editor's tab strip when the
+  current user may modify that carrier. The `@@edit-footer` page mounts the Aurora editor on its footer
+  field, a `PATCH` to `@footerblocks` saves the container after running the
+  block deserialization transformers, and a browser `GET` on `@footerblocks`
+  redirects to the carrier after save or cancel.
 - **Stylesheets.** The package overrides the `plone.pageletlayout.styles`
   head provider on its own browser layer and appends the blocks stylesheets
   after the resource registry output. On block pages the same links are then

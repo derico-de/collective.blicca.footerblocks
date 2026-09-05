@@ -12,9 +12,15 @@
   the carrier's `footer` field, `PATCH <carrier>/@footerblocks` saves it, and
   a browser GET on that same URL redirects back to the carrier (where the
   host pattern navigates after save/cancel). Volto-authored `slate` footers
-  are adopted into a somersault on open, and the footer element carries an
-  "Edit footer" link for anyone allowed to author it. Built on
+  are adopted into a somersault on open. Built on
   `plone.blicca.auroraeditor.editing` (auroraeditor ADR 0015).
+
+  The way in is a **Footer** tab on top of the Aurora edit area, after Blocks
+  and Content: an `IEditSurfaceTab` subscriber that resolves the nearest
+  carrier and is offered only to someone who may modify it. The rendered
+  footer element carries no edit chrome of its own, and is suppressed on
+  `@@edit-footer` so the content being edited is not repeated below the
+  editor.
 - Render only an authored (persisted) footer, never the behavior schema's
   slate "Edit" seed: the footer is an Aurora (Plate) container — somersault
   tree plus registered block add-ons' `ploneBlock` nodes — and slate is
