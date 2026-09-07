@@ -2,6 +2,10 @@
 
 ## 1.0.0a1 (unreleased)
 
+- Hide the carrier site's or folder's document title from the Aurora footer
+  canvas. It is metadata for the carrier, not publishable footer content;
+  existing title nodes are omitted and Title is not offered in the slash menu.
+
 - Remove the `footer_edit` object action on upgrade to profile version 1001.
   An earlier build reached the footer through a Plone object action whose
   `available_expr` traversed `@@footer-edit-action`; the Footer tab in the

@@ -78,6 +78,10 @@ profile. Installing it:
 3. Compose the footer in the Aurora editor and save. You are taken back to
    the page, footer on display.
 
+The footer surface starts directly with footer content: it does not show the
+carrier site's or folder's document title, because that metadata is not part
+of the published footer.
+
 The editor can also be opened directly at `<carrier>/@@edit-footer`, where
 the carrier is the site root or a folder with the editable-footer behavior.
 

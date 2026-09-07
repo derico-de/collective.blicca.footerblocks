@@ -32,6 +32,11 @@ class FooterEditView(AuroraFieldEditView):
     # it active here instead of Blocks.
     surface_id = "footer"
 
+    # The site's metadata title belongs to the carrier, not to its footer.
+    # Hiding the title block keeps the canvas limited to content that can
+    # actually appear in the published footer.
+    show_title = False
+
     # A footer is a full-bleed band, so its text blocks may go `full` —
     # the width the base surface withholds because a body paragraph has
     # no business breaking out of the page grid. Opting in here rather

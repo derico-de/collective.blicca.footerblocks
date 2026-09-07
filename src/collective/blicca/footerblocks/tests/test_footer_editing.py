@@ -68,6 +68,10 @@ class TestEditFooterView(EditingBase):
         assert config["contentUrl"] == f"{self.portal.absolute_url()}/@footerblocks"
         assert config["unlockUrl"] == f"{self.portal.absolute_url()}/@lock"
 
+    def test_the_footer_has_no_document_title_block(self):
+        view = self._called_view()
+        assert view.config()["showTitle"] is False
+
     def test_text_blocks_may_go_full_bleed_on_the_footer(self):
         """A footer is a full-bleed band, so its text blocks get `full`.
 
