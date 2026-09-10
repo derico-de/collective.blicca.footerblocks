@@ -27,8 +27,8 @@
   are adopted into a somersault on open. Built on
   `plone.blicca.auroraeditor.editing` (auroraeditor ADR 0015).
 
-  The way in is a **Footer** tab on top of the Aurora edit area, after Blocks
-  and Content: an `IEditSurfaceTab` subscriber that resolves the nearest
+  The way in is a **Footer** tab on top of the Aurora edit area, between
+  Blocks and Content: an `IEditSurfaceTab` subscriber that resolves the nearest
   carrier and is offered only to someone who may modify it. The rendered
   footer element carries no edit chrome of its own, and is suppressed on
   `@@edit-footer` so the content being edited is not repeated below the

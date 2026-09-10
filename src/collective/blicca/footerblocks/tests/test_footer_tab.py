@@ -56,13 +56,15 @@ class TestFooterTab:
         assert tab.available is True
         assert tab.url == f"{self.portal.absolute_url()}/@@edit-footer"
 
-    def test_it_comes_after_blocks_and_content(self):
+    def test_it_sits_between_blocks_and_content(self):
+        """The two block surfaces stay side by side; the classic metadata
+        form comes after them."""
         assert [tab["id"] for tab in self._tabs()] == [
             "blocks",
-            "content",
             "footer",
+            "content",
         ]
-        footer = self._tabs()[-1]
+        footer = self._tabs()[1]
         assert footer["title"] == "Footer"
         assert footer["active"] is False
 
