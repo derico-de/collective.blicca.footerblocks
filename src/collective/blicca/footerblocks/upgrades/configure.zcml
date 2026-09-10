@@ -4,5 +4,6 @@
     i18n_domain="collective.blicca.footerblocks">
 
   <include file="1001.zcml" />
+  <include file="multilingual_1001.zcml" />
 
 </configure>

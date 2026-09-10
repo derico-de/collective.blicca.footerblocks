@@ -178,6 +178,78 @@ class TestMultilingualProfile:
         return pagelet.blocks_html
 
 
+class TestTheProfileSeeds:
+    """Applying the profile is one action: the type and the footers.
+
+    The renderer stops at the nearest carrier, so between importing
+    types/LRF.xml and seeding there is a site whose languages publish no
+    footer. The profile's post_handler closes that window by doing both in
+    one transaction.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _setup(self, integration):
+        self.portal = integration["portal"]
+        self.request = integration["request"]
+        alsoProvides(self.request, ICollectiveBliccaFooterblocksLayer)
+        setRoles(self.portal, TEST_USER_ID, ["Manager"])
+        login(self.portal, TEST_USER_NAME)
+        make_multilingual(self.portal)
+
+    def _apply(self):
+        applyProfile(self.portal, "collective.blicca.footerblocks:multilingual")
+        return language_root_folders(self.portal)
+
+    def test_applying_it_carries_the_site_footer_into_every_language(self):
+        self.portal.footer = footer_container("Site footer")
+
+        for folder in self._apply():
+            assert folder.footer == self.portal.footer
+
+    def test_the_published_footer_never_goes_missing(self):
+        """The point of the whole exercise, asserted through the renderer."""
+        self.portal.footer = footer_container("Site footer")
+        page_of = {}
+        for folder in language_root_folders(self.portal):
+            page_of[folder.getId()] = api.content.create(
+                container=folder, type="Document", id="page", title="Page"
+            )
+
+        for folder in self._apply():
+            page = page_of[folder.getId()]
+            assert "Site footer" in self._rendered(page)
+
+    def test_an_authored_language_footer_is_not_overwritten(self):
+        self.portal.footer = footer_container("Site footer")
+        (first, *_) = language_root_folders(self.portal)
+        first.footer = footer_container("Already authored")
+
+        self._apply()
+
+        value = first.footer["blocks"][SOMERSAULT_BLOCK_ID]["value"]
+        assert value == [{"type": "p", "children": [{"text": "Already authored"}]}]
+
+    def test_reimporting_the_profile_changes_nothing(self):
+        self.portal.footer = footer_container("Site footer")
+        self._apply()
+        (first, *_) = language_root_folders(self.portal)
+        first.footer = footer_container("Edited since")
+
+        self._apply()
+
+        value = first.footer["blocks"][SOMERSAULT_BLOCK_ID]["value"]
+        assert value == [{"type": "p", "children": [{"text": "Edited since"}]}]
+
+    def test_an_unauthored_site_still_seeds_nothing(self):
+        for folder in self._apply():
+            assert "footer" not in vars(folder)
+
+    def _rendered(self, context):
+        pagelet = FooterBlocksChromePagelet(context, self.request)
+        pagelet.update()
+        return pagelet.blocks_html
+
+
 class TestSeedLanguageFooters:
     """The migration that keeps the published footer from vanishing."""
 

@@ -109,12 +109,18 @@ not apply it.
 
 Extra profiles are not listed in the Add-ons control panel. Apply this one
 from `portal_setup` → **Import**, choosing *Collective Blicca Footerblocks:
-per-language footers* as the profile.
+per-language footers* as the profile. That is the whole operation — no script
+to run afterwards.
 
-Mind the nearest-carrier rule when you do: a language folder that carries the
-behavior but has never had its footer authored shows **no** footer, it does
-not fall back to the site root's. To keep the published site unchanged, copy
-the inherited footer into each language once:
+It has to be, because of the nearest-carrier rule: a language folder that
+carries the behavior but has never had its footer authored shows **no**
+footer, it does not fall back to the site root's. So applying the profile
+also copies the inherited footer into every language that has none, in the
+same transaction, and the published site is unchanged when it finishes. Each
+language then owns its copy and is edited on its own; a site that would
+rather start from empty language footers can clear them afterwards.
+
+The same seeding is available on its own, and is idempotent:
 
 ```python
 from collective.blicca.footerblocks.multilingual import seed_language_footers
@@ -122,8 +128,9 @@ from collective.blicca.footerblocks.multilingual import seed_language_footers
 seed_language_footers(portal)
 ```
 
-It seeds only language folders that have no footer yet, so running it twice
-is harmless. Each language then owns its copy and can be edited on its own.
+Sites that applied this profile while it was at version 1000 — when it
+imported the type and nothing else — get the seeding from the 1000 → 1001
+upgrade step instead, under `portal_setup` → **Upgrades**.
 
 To give a section its own footer, enable the
 `collective.volto.footer.editable` behavior on that section's content type

@@ -16,10 +16,19 @@
   Because renderer and tab both stop at the *nearest* carrier (Volto
   `@inherit` semantics), a language folder that carries the behavior but has
   no footer of its own shows none — it does not fall back to the site root's.
-  `collective.blicca.footerblocks.multilingual.seed_language_footers(portal)`
-  is the one-shot migration for that: it copies the inherited footer into
-  every unauthored language folder, so nothing disappears when the profile is
-  turned on. It is idempotent and separate from the profile.
+  The profile therefore seeds itself: its `post_handler` copies the inherited
+  footer into every unauthored language folder, in the same transaction as
+  the type import, so applying the profile is one action and the published
+  footer is never missing in between. Seeding is idempotent — a language
+  folder that has a footer of its own is left alone, and re-importing the
+  profile changes nothing.
+
+- Upgrade the `multilingual` profile 1000 → 1001. Version 1000 imported the
+  type and stopped there, leaving each language publishing no footer until
+  someone called `seed_language_footers()` by hand. The step runs that
+  seeding, so a site that applied the profile at 1000 reaches the same state
+  a fresh apply now produces. It touches no import step and is idempotent, so
+  it is a no-op on a site that was seeded by hand already.
 
 - Hide the carrier site's or folder's document title from the Aurora footer
   canvas. It is metadata for the carrier, not publishable footer content;

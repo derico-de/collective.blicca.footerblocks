@@ -98,6 +98,7 @@
       description="Lets each plone.app.multilingual language root folder carry its own footer. Requires plone.app.multilingual."
       provides="Products.GenericSetup.interfaces.EXTENSION"
       directory="profiles/multilingual"
+      post_handler=".setuphandlers.post_multilingual_install"
       />
 
   <genericsetup:registerProfile

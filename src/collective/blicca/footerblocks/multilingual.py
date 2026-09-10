@@ -14,11 +14,14 @@ carries the behavior but has never had its footer authored shows no footer
 at all, rather than falling back to the site root's. Turning the profile on
 therefore blanks the footer under every language until each one is authored.
 
-:func:`seed_language_footers` is the one-shot answer: copy the footer those
-pages were already showing into each language folder, so nothing disappears
-and every language starts from the same content, independently editable
-from there. It is a migration, not part of the profile — a site that wants
-its languages to start empty just does not run it.
+:func:`seed_language_footers` is the answer: copy the footer those pages
+were already showing into each language folder, so nothing disappears and
+every language starts from the same content, independently editable from
+there. The profile runs it itself, as its ``post_handler`` — applying the
+profile and seeding are one action in one transaction, because any gap
+between them is a gap with no footer on the published site. It stays a
+separate, idempotent function so the 1000 -> 1001 upgrade step can run it
+again on a site that applied the profile before it seeded.
 """
 
 import logging
@@ -81,3 +84,15 @@ def seed_language_footers(portal):
         logger.info("Seeded the footer of %s from the inherited one.", path)
 
     return seeded
+
+
+def seed_language_footers_handler(context):
+    """Seed from GenericSetup, where ``context`` is the setup tool.
+
+    Both entry points arrive this way: the ``multilingual`` profile's
+    ``post_handler`` — so applying the profile and seeding are one action in
+    one transaction, and the published footer never has a moment of being
+    gone — and the 1000 -> 1001 upgrade step, for sites that applied the
+    profile back when it only imported the type.
+    """
+    return seed_language_footers(aq_parent(aq_inner(context)))
