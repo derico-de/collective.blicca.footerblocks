@@ -110,3 +110,44 @@ class TestMultilingualUpgrade1001:
         pagelet = FooterBlocksChromePagelet(context, self.request)
         pagelet.update()
         return pagelet.blocks_html
+
+
+class TestASiteThatNeverAppliedTheProfile:
+    """No upgrade is offered — Import is the route in, not Upgrades.
+
+    Worth pinning, because the two GenericSetup calls disagree.
+    ``listUpgrades()`` takes the last applied version as its lower bound,
+    and an unapplied profile has none, so it happily reports the step. The
+    portal_setup **Upgrades** page does not use that: it builds its dropdown
+    from ``listProfilesWithPendingUpgrades()``, which skips any profile whose
+    version is UNKNOWN — "we are not interested in profiles that have never
+    been applied" (Products/GenericSetup/tool.py). So a server that has never
+    turned per-language footers on sees nothing there, however many upgrade
+    steps this package registers.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _setup(self, integration):
+        self.portal = integration["portal"]
+        setRoles(self.portal, TEST_USER_ID, ["Manager"])
+        login(self.portal, TEST_USER_NAME)
+        self.setup_tool = self.portal.portal_setup
+        make_multilingual(self.portal)
+
+    def test_the_profile_has_no_recorded_version(self):
+        assert self.setup_tool.getLastVersionForProfile(PROFILE) == "unknown"
+
+    def test_the_upgrades_page_does_not_offer_it(self):
+        assert PROFILE not in self.setup_tool.listProfilesWithPendingUpgrades()
+        assert self.setup_tool.hasPendingUpgrades(PROFILE) is False
+
+    def test_but_list_upgrades_still_reports_the_step(self):
+        """The disagreement itself — do not read this as "it is offered"."""
+        assert self.setup_tool.listUpgrades(PROFILE)
+
+    def test_the_default_profile_has_nothing_pending_either(self):
+        """This pin changed no default-profile XML, so the Add-ons control
+        panel offers no upgrade for the add-on."""
+        assert self.setup_tool.listUpgrades(
+            "collective.blicca.footerblocks:default"
+        ) == []
