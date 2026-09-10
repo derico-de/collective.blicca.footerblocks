@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<object name="LRF"
+        meta_type="Dexterity FTI">
+  <!-- purge="false": the type keeps every behavior plone.app.multilingual
+       gave it, and gains the footer storage. -->
+  <property name="behaviors" purge="false">
+    <element value="collective.volto.footer.editable"/>
+  </property>
+</object>

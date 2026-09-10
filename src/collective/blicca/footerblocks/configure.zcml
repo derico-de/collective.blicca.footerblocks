@@ -86,6 +86,20 @@
       directory="profiles/default"
       />
 
+  <!-- Per-language footers, opt-in. The renderer and the Footer tab both
+       stop at the *nearest* ancestor carrying the behavior (Volto's
+       @inherit semantics), so marking the language root folders is what
+       gives /de and /en a footer of their own — and what makes each of
+       them responsible for having one. A multilingual site that wants a
+       single shared footer simply does not apply this profile. -->
+  <genericsetup:registerProfile
+      name="multilingual"
+      title="Collective Blicca Footerblocks: per-language footers"
+      description="Lets each plone.app.multilingual language root folder carry its own footer. Requires plone.app.multilingual."
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      directory="profiles/multilingual"
+      />
+
   <genericsetup:registerProfile
       name="uninstall"
       title="Collective Blicca Footerblocks (uninstall)"

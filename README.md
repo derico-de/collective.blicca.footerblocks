@@ -27,7 +27,10 @@ and mounts the Aurora editor on it.
   widths are allowed because a footer is a full-width band.
 - **Inherited down the tree.** The footer of the nearest ancestor that has
   the editable-footer behavior is shown. Enable the behavior on a folder type
-  to give a section or a language its own footer.
+  to give a section its own footer.
+- **One footer per language.** An opt-in profile makes every
+  plone.app.multilingual language root folder a footer carrier, so `/de` and
+  `/en` each edit and render their own.
 - **Shared with Volto.** The storage is `collective.volto.footer`'s field, so
   the footer is readable by Volto's `@inherit` expander as well.
 - **Styled like page content.** The footer's blocks are wrapped in the same
@@ -45,6 +48,8 @@ and mounts the Aurora editor on it.
 - `plone.rest`
 
 All of these are declared as dependencies and pulled in on install.
+`plone.app.multilingual` is not a dependency; it is only needed for the
+opt-in per-language footers profile, on a site that already has it.
 
 ## Installation
 
@@ -84,6 +89,41 @@ of the published footer.
 
 The editor can also be opened directly at `<carrier>/@@edit-footer`, where
 the carrier is the site root or a folder with the editable-footer behavior.
+
+## Per-language footers
+
+On a multilingual site the language root folders (`LRF`) are not footer
+carriers out of the box: `collective.volto.footer` puts the editable-footer
+behavior on the Plone Site type and nothing else. `/de` and `/en` therefore
+have no `@@edit-footer`, and the **Footer** tab of a page below them opens
+the site-wide footer instead.
+
+Apply the `collective.blicca.footerblocks:multilingual` profile to change
+that. It adds the behavior to the `LRF` type, and from then on every language
+folder edits and renders a footer of its own. The existing language folders
+become carriers immediately — a Dexterity object provides its behaviors'
+marker interfaces the moment the type names them, so no content is migrated.
+The profile requires plone.app.multilingual, and it is opt-in on purpose: a
+multilingual site that wants one shared footer for all languages simply does
+not apply it.
+
+Extra profiles are not listed in the Add-ons control panel. Apply this one
+from `portal_setup` → **Import**, choosing *Collective Blicca Footerblocks:
+per-language footers* as the profile.
+
+Mind the nearest-carrier rule when you do: a language folder that carries the
+behavior but has never had its footer authored shows **no** footer, it does
+not fall back to the site root's. To keep the published site unchanged, copy
+the inherited footer into each language once:
+
+```python
+from collective.blicca.footerblocks.multilingual import seed_language_footers
+
+seed_language_footers(portal)
+```
+
+It seeds only language folders that have no footer yet, so running it twice
+is harmless. Each language then owns its copy and can be edited on its own.
 
 To give a section its own footer, enable the
 `collective.volto.footer.editable` behavior on that section's content type

@@ -2,6 +2,25 @@
 
 ## 1.0.0a1 (unreleased)
 
+- Add the opt-in `multilingual` profile: per-language footers. Language root
+  folders (`LRF`) of plone.app.multilingual are not footer carriers out of the
+  box — collective.volto.footer marks the Plone Site type only — so
+  `@@edit-footer` was not registered on `/de` or `/en` and the editor's Footer
+  tab sent authors to the site root. Applying
+  `collective.blicca.footerblocks:multilingual` puts the editable-footer
+  behavior on the `LRF` type, after which each language edits and renders a
+  footer of its own. Existing language folders become carriers without a
+  content migration; the site-wide footer is untouched, and a multilingual
+  site that wants one shared footer simply does not apply the profile.
+
+  Because renderer and tab both stop at the *nearest* carrier (Volto
+  `@inherit` semantics), a language folder that carries the behavior but has
+  no footer of its own shows none — it does not fall back to the site root's.
+  `collective.blicca.footerblocks.multilingual.seed_language_footers(portal)`
+  is the one-shot migration for that: it copies the inherited footer into
+  every unauthored language folder, so nothing disappears when the profile is
+  turned on. It is idempotent and separate from the profile.
+
 - Hide the carrier site's or folder's document title from the Aurora footer
   canvas. It is metadata for the carrier, not publishable footer content;
   existing title nodes are omitted and Title is not offered in the slash menu.

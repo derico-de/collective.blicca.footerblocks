@@ -34,6 +34,9 @@ dependencies = [
 
 [project.optional-dependencies]
 test = [
+    # The opt-in multilingual profile puts the footer behavior on
+    # plone.app.multilingual's LRF type; its tests need that type to exist.
+    "plone.app.multilingual",
     "pytest",
     "pytest-cov",
     "pytest-plone>=0.5.0",

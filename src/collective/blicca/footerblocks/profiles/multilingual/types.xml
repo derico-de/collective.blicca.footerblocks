@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<object name="portal_types"
+        meta_type="Plone Types Tool">
+  <!-- The Language Root Folder of plone.app.multilingual. This profile is
+       only meaningful on a multilingual site: apply it there, and the type
+       already exists, so the entry below reaches types/LRF.xml rather than
+       creating anything. -->
+  <object name="LRF" meta_type="Dexterity FTI"/>
+</object>

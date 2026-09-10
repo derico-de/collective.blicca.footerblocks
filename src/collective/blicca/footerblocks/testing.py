@@ -6,10 +6,17 @@ would in a real site) but its GS profile is never applied. The add-on's own
 profile pulls its metadata.xml dependencies — collective.volto.footer (the
 footer behavior on the Plone Site type), plone.pageletlayout (the frame) and
 plone.blicca.auroraeditor (the block rendering pipeline).
+
+plone.app.multilingual is loaded the same way — ZCML only. Two sibling
+PloneSandboxLayers do not isolate from each other under pytest, so the
+per-language footer tests apply its profile (and this package's opt-in
+``multilingual`` one) inside the test, where the integration layer's
+transaction rollback contains them.
 """
 
 import os
 
+import plone.app.multilingual
 import plone.blicca.auroraeditor
 import plone.pageletlayout
 import plone.restapi
@@ -37,6 +44,7 @@ class CollectiveBliccaFooterblocksLayer(PloneSandboxLayer):
         os.environ.setdefault("zope_i18n_compile_mo_files", "true")
         self.loadZCML(package=plone.restapi)
         self.loadZCML(package=plone.volto)
+        self.loadZCML(name="testing.zcml", package=plone.app.multilingual)
         self.loadZCML(package=plone.pageletlayout)
         self.loadZCML(package=plone.blicca.auroraeditor)
         self.loadZCML(package=collective.volto.footer)

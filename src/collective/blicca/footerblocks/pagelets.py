@@ -38,6 +38,22 @@ def footer_carrier(context):
     return None
 
 
+def authored_footer(carrier):
+    """The persisted footer value of ``carrier``, or ``{}``.
+
+    Never the schema default: Dexterity serves ``collective.volto.footer``'s
+    slate "Edit" seed for a never-set field, so ``getattr`` alone cannot tell
+    an authored footer from the seed; the instance dict can.
+
+    Nearest-marker semantics stay mirrored to ``@inherit``: an ancestor
+    carrying the behavior but never authored yields an empty footer, it does
+    not fall through to a grandparent Volto would never consult.
+    """
+    if carrier is None:
+        return {}
+    return vars(aq_base(carrier)).get("footer") or {}
+
+
 class FooterBlocksChromePagelet(ChromePagelet):
     """Render the inherited footer blocks at the tail of every page.
 
@@ -66,7 +82,7 @@ class FooterBlocksChromePagelet(ChromePagelet):
             return
 
         carrier = self._carrier()
-        footer = self._authored_footer(carrier)
+        footer = authored_footer(carrier)
         if carrier is not None and footer.get("blocks"):
             self.blocks_html = render_blocks(
                 carrier,
@@ -82,18 +98,6 @@ class FooterBlocksChromePagelet(ChromePagelet):
             if url.rstrip("/").endswith("/@@edit-footer"):
                 return True
         return False
-
-    @staticmethod
-    def _authored_footer(carrier):
-        """The persisted footer value, or ``{}`` — never the schema default.
-
-        Nearest-marker semantics stay mirrored to ``@inherit``: an ancestor
-        carrying the behavior but never authored yields an empty footer, it
-        does not fall through to a grandparent Volto would never consult.
-        """
-        if carrier is None:
-            return {}
-        return vars(aq_base(carrier)).get("footer") or {}
 
     def _carrier(self):
         """The nearest ancestor carrying the editable-footer behavior."""
