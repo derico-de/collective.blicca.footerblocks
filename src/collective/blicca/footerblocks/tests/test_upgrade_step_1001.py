@@ -11,12 +11,30 @@ from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from Products.CMFCore.ActionInformation import Action
 
-from collective.blicca.footerblocks.setuphandlers import HiddenProfiles
 from collective.blicca.footerblocks.upgrades.v1001 import upgrade
 
 
 ACTION = "footer_edit"
 PROFILE = "collective.blicca.footerblocks.upgrades:1001"
+
+
+def hidden_profiles():
+    """Every profile the add-ons panel is told to hide.
+
+    Read from the utility registry rather than from `HiddenProfiles()`: the
+    panel and `GET /@addons` only ever see the class through the
+    `INonInstallable` utility registered in configure.zcml, so a test that
+    instantiates it passes with no registration at all — which is how these
+    profiles came to be offered as installable add-ons in the first place.
+    """
+    from plone.base.interfaces import INonInstallable
+    from zope.component import getAllUtilitiesRegisteredFor
+
+    return [
+        name
+        for utility in getAllUtilitiesRegisteredFor(INonInstallable)
+        for name in getattr(utility, "getNonInstallableProfiles", list)()
+    ]
 
 
 class TestUpgrade1001:
@@ -59,7 +77,7 @@ class TestUpgrade1001:
         )
 
     def test_upgrade_profile_is_hidden(self):
-        assert PROFILE in HiddenProfiles().getNonInstallableProfiles()
+        assert PROFILE in hidden_profiles()
 
     def test_upgrade_removes_the_action(self):
         self._readd_action()
