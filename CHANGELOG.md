@@ -2,6 +2,14 @@
 
 ## 1.0.0a1 (unreleased)
 
+- The Footer tab sends the page it sits on along as the `origin` request
+  parameter, and `@@edit-footer` renders that page's tab strip instead of
+  the carrier's. The carrier's strip had no Content tab (a site root has no
+  metadata form) and a Blocks tab into `<site>/@@aurora-edit`, where the
+  editor failed on an object without blocks. Save and cancel now land back
+  on the page the author came from rather than on the carrier. Needs the
+  plone.blicca.auroraeditor that ships `EditSurfaceTab.surface_url`.
+
 - The uninstall and upgrade profiles are out of the Add-ons control panel
   again. `HiddenProfiles` named them all along, but the `INonInstallable`
   utility was never registered in `configure.zcml` — and the panel (and

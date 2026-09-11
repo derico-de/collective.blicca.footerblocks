@@ -87,8 +87,16 @@ The footer surface starts directly with footer content: it does not show the
 carrier site's or folder's document title, because that metadata is not part
 of the published footer.
 
+The **Footer** tab sends the page it sits on along, as the `origin` request
+parameter (`<carrier>/@@edit-footer?origin=/Plone/de/page`). The footer
+surface then shows that page's tab strip — **Blocks** and **Content** lead
+back to the page, not to the carrier — and after save or cancel the author
+lands on that page again, footer on display.
+
 The editor can also be opened directly at `<carrier>/@@edit-footer`, where
 the carrier is the site root or a folder with the editable-footer behavior.
+Without an origin the strip offers the Footer tab alone: a site root or
+folder has no blocks canvas of its own.
 
 ## Per-language footers
 
@@ -179,7 +187,8 @@ through `.element-footerblocks`.
   current user may modify that carrier. The `@@edit-footer` page mounts the Aurora editor on its footer
   field, a `PATCH` to `@footerblocks` saves the container after running the
   block deserialization transformers, and a browser `GET` on `@footerblocks`
-  redirects to the carrier after save or cancel.
+  redirects to the page the author came from (the `origin` parameter the tab
+  sends along), or to the carrier, after save or cancel.
 - **Stylesheets.** The package overrides the `plone.pageletlayout.styles`
   head provider on its own browser layer and appends the blocks stylesheets
   after the resource registry output. On block pages the same links are then

@@ -68,6 +68,22 @@ class TestEditFooterView(EditingBase):
         assert config["contentUrl"] == f"{self.portal.absolute_url()}/@footerblocks"
         assert config["unlockUrl"] == f"{self.portal.absolute_url()}/@lock"
 
+    def test_the_save_url_remembers_the_page_the_author_came_from(self):
+        page = api.content.create(
+            container=self.portal, type="Document", id="page", title="Page"
+        )
+        self.request.form["origin"] = "/plone/page"
+        try:
+            config = self._called_view().config()
+        finally:
+            del self.request.form["origin"]
+        assert (
+            config["contentUrl"]
+            == f"{self.portal.absolute_url()}/@footerblocks?origin=/plone/page"
+        )
+        assert config["unlockUrl"] == f"{self.portal.absolute_url()}/@lock"
+        assert page.absolute_url() not in config["unlockUrl"]
+
     def test_the_footer_has_no_document_title_block(self):
         view = self._called_view()
         assert view.config()["showTitle"] is False
@@ -261,6 +277,20 @@ class TestSaveUrlRedirect(EditingBase):
         response = self.request.response
         assert response.getStatus() == 302
         assert response.getHeader("Location") == self.portal.absolute_url()
+
+    def test_browser_get_on_the_save_url_lands_on_the_page_the_author_came_from(
+        self,
+    ):
+        page = api.content.create(
+            container=self.portal, type="Document", id="page", title="Page"
+        )
+        self.request.form["origin"] = "/plone/page"
+        try:
+            view = self.portal.restrictedTraverse("@footerblocks")
+            assert view() == ""
+        finally:
+            del self.request.form["origin"]
+        assert self.request.response.getHeader("Location") == page.absolute_url()
 
 
 class TestFooterChromePolicy(EditingBase):

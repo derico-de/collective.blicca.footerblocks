@@ -34,6 +34,8 @@ class TestFooterTab:
             title="Test Document",
         )
         alsoProvides(self.doc, IBlocks)
+        yield
+        self.request.form.pop("origin", None)
 
     def _tab(self, context=None):
         found = [
@@ -52,9 +54,14 @@ class TestFooterTab:
         return view.edit_tabs()
 
     def test_the_tab_points_at_the_inherited_site_footer(self):
+        """... and sends this page along, so the footer surface can show
+        this page's strip and return here afterwards."""
         tab = self._tab()
         assert tab.available is True
-        assert tab.url == f"{self.portal.absolute_url()}/@@edit-footer"
+        assert (
+            tab.url
+            == f"{self.portal.absolute_url()}/@@edit-footer?origin=/plone/test-document"
+        )
 
     def test_it_sits_between_blocks_and_content(self):
         """The two block surfaces stay side by side; the classic metadata
@@ -75,6 +82,28 @@ class TestFooterTab:
             "footer"
         ]
 
+    def test_the_footer_surface_keeps_the_pages_strip(self):
+        """Reached from a page, the surface shows that page's tabs: Blocks
+        and Content lead back to the page, Footer is the one lit."""
+        self.request.form["origin"] = "/plone/test-document"
+        view = getMultiAdapter((self.portal, self.request), name="edit-footer")
+        tabs = view.edit_tabs()
+        assert [tab["id"] for tab in tabs] == ["blocks", "footer", "content"]
+        assert [tab["id"] for tab in tabs if tab["active"]] == ["footer"]
+        assert tabs[0]["url"] == f"{self.doc.absolute_url()}/@@aurora-edit"
+        assert tabs[2]["url"] == f"{self.doc.absolute_url()}/@@edit-metadata"
+        assert (
+            tabs[1]["url"]
+            == f"{self.portal.absolute_url()}/@@edit-footer?origin=/plone/test-document"
+        )
+
+    def test_reached_directly_the_footer_surface_offers_only_itself(self):
+        """The site root has no canvas and no metadata form: a Blocks tab
+        into ``<site>/@@aurora-edit`` would open an editor with nothing to
+        mount."""
+        view = getMultiAdapter((self.portal, self.request), name="edit-footer")
+        assert [tab["id"] for tab in view.edit_tabs()] == ["footer"]
+
     def test_the_nearest_section_footer_wins(self):
         section = api.content.create(
             container=self.portal, type="Folder", id="section", title="Section"
@@ -83,7 +112,10 @@ class TestFooterTab:
         page = api.content.create(
             container=section, type="Document", id="page", title="Page"
         )
-        assert self._tab(page).url == f"{section.absolute_url()}/@@edit-footer"
+        assert (
+            self._tab(page).url
+            == f"{section.absolute_url()}/@@edit-footer?origin=/plone/section/page"
+        )
 
     def test_it_is_withheld_without_permission_on_the_carrier(self):
         logout()

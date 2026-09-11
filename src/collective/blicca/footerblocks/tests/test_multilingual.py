@@ -87,8 +87,10 @@ class TestWithoutTheProfile:
             assert not IEditableFooterMarker.providedBy(folder)
 
     def test_the_footer_tab_escapes_to_the_site_root(self):
-        tab = self._footer_tab(self.folders[0])
-        assert tab.url == f"{self.portal.absolute_url()}/@@edit-footer"
+        folder = self.folders[0]
+        tab = self._footer_tab(folder)
+        origin = "/".join(folder.getPhysicalPath())
+        assert tab.url == f"{self.portal.absolute_url()}/@@edit-footer?origin={origin}"
 
     def test_edit_footer_is_not_registered_on_a_language_folder(self):
         with pytest.raises(Exception):  # noqa: B017 - ComponentLookupError
@@ -159,7 +161,8 @@ class TestMultilingualProfile:
             if tab.id == "footer"
         ]
         assert tab.available is True
-        assert tab.url == f"{folder.absolute_url()}/@@edit-footer"
+        origin = "/".join(page.getPhysicalPath())
+        assert tab.url == f"{folder.absolute_url()}/@@edit-footer?origin={origin}"
 
     def test_each_language_renders_its_own_footer(self):
         first, *rest = self.folders

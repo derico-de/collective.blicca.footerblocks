@@ -7,6 +7,10 @@ subscriber, it appears alongside Blocks and Content at the top of every
 Aurora edit surface, resolving the nearest carrier the same way the
 renderer does — a page beneath a language folder edits that folder's
 footer, not the site root's.
+
+The page rides along as the ``origin`` request parameter, so that the
+footer surface renders *this* page's strip (Blocks and Content lead back
+here) and lands back on this page after save or cancel.
 """
 
 from AccessControl import getSecurityManager
@@ -46,4 +50,4 @@ class FooterTab(EditSurfaceTab):
 
     @property
     def url(self):
-        return f"{self.carrier.absolute_url()}/@@{self.view_name}"
+        return self.surface_url(self.carrier)
