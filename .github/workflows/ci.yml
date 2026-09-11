@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      BLICCA_TOKEN: ${{ secrets.BLICCA_TOKEN }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      # plone.blicca.auroraeditor is PRIVATE and not on PyPI: it is the editor
+      # this block mounts in and the source of the rendering API the package
+      # imports, so without it nothing installs and nothing is tested. A
+      # missing token is a red job on purpose — a green run over a package
+      # that could not be installed says nothing.
+      - name: Require the host checkout token
+        if: env.BLICCA_TOKEN == ''
+        run: |
+          echo "::error::BLICCA_TOKEN is not set. This package depends on"
+          echo "::error::plone.blicca.auroraeditor, which is private and not"
+          echo "::error::on PyPI, so the tests cannot run."
+          exit 1
+
+      # pyproject resolves the sources below from `../<name>`, so this
+      # repository checks itself out into a subdirectory and its siblings land
+      # beside it, exactly as they sit under the site's `sources/`.
+      - uses: actions/checkout@v5
+        with:
+          path: collective.blicca.footerblocks
+
+      - uses: actions/checkout@v5
+        with:
+          repository: derico-de/plone.blicca.auroraeditor
+          token: ${{ env.BLICCA_TOKEN }}
+          path: plone.blicca.auroraeditor
+
+      - uses: actions/checkout@v5
+        with:
+          repository: MrTango/plone.pageletlayout
+          path: plone.pageletlayout
+
+      - name: Set up uv and Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@v10.0.1
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run tests
+        working-directory: collective.blicca.footerblocks
+        run: uv run --frozen --extra test pytest -v
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.0.1
+        with:
+          enable-cache: true
+
+      - name: Run ruff
+        run: uvx ruff@0.16.6 check .
