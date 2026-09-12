@@ -4,8 +4,20 @@ Mirrors the collective.fragmentsblock fixture: plone.volto's ZCML is loaded
 (the volto.* metadata behaviors and serializer utilities, as z3c.autoinclude
 would in a real site) but its GS profile is never applied. The add-on's own
 profile pulls its metadata.xml dependencies — collective.volto.footer (the
-footer behavior on the Plone Site type), plone.pageletlayout (the frame) and
-plone.blicca.auroraeditor (the block rendering pipeline).
+footer behavior on the Plone Site type) and plone.blicca.auroraeditor (the
+block rendering pipeline).
+
+The fixture site is the **stock** frame: plone.pageletlayout's ZCML is
+loaded (importable, so the conditional registrations exist — the production
+shape of "installed in the instance, not on this site") but its profile is
+not applied, and Barceloneta's main_template renders. The pageletlayout
+frame is not a second sandbox layer: pytest-plone keeps every layer set up
+for the whole session, and plone.testing's resource stacks then resolve a
+base layer's ``zodbDB`` to the *last* sandbox stacked on it — a second
+PloneSandboxLayer, sibling or child, leaks its profiles into every test.
+``tests/conftest.py`` applies ``plone.pageletlayout:default`` inside the
+test transaction instead (``pageletlayout_integration``), the way the
+per-language tests apply theirs.
 
 plone.app.multilingual is loaded the same way — ZCML only. Two sibling
 PloneSandboxLayers do not isolate from each other under pytest, so the
@@ -49,6 +61,14 @@ class CollectiveBliccaFooterblocksLayer(PloneSandboxLayer):
         self.loadZCML(package=plone.blicca.auroraeditor)
         self.loadZCML(package=collective.volto.footer)
         self.loadZCML(package=collective.blicca.footerblocks)
+        # Plone loads plugin overrides.zcml through plone.autoinclude; the
+        # sandbox loads it as a plain file after the base, the way
+        # plone.app.testing's own fixture loads Plone's overrides (each
+        # loadZCML executes its actions at once, so a later registration
+        # replaces an earlier one and there is no conflict to resolve).
+        # That the file is a real override — same discriminator as the base
+        # stanza — is pinned separately, in tests/test_overrides.py.
+        self.loadZCML(name="overrides.zcml", package=collective.blicca.footerblocks)
 
     def setUpPloneSite(self, portal):
         """Set up Plone site."""
@@ -57,6 +77,7 @@ class CollectiveBliccaFooterblocksLayer(PloneSandboxLayer):
 
 
 FIXTURE = CollectiveBliccaFooterblocksLayer()
+
 
 INTEGRATION_TESTING = IntegrationTesting(
     bases=(FIXTURE,),

@@ -17,8 +17,8 @@ from AccessControl import getSecurityManager
 from plone.blicca.auroraeditor.editing import EditSurfaceTab
 from Products.CMFCore.permissions import ModifyPortalContent
 
+from collective.blicca.footerblocks.footer import footer_carrier
 from collective.blicca.footerblocks.i18n import _
-from collective.blicca.footerblocks.pagelets import footer_carrier
 
 
 class FooterTab(EditSurfaceTab):

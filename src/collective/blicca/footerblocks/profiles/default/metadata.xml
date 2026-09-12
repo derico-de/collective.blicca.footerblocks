@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata>
-  <version>1001</version>
+  <version>1002</version>
   <dependencies>
     <dependency>profile-plone.app.registry:default</dependency>
     <!-- The storage: the editable-footer behavior (footer JSONField),
          enabled on the Plone Site type by that add-on's profile. -->
     <dependency>profile-collective.volto.footer:default</dependency>
-    <!-- The frame the chrome pagelet slots into. -->
-    <dependency>profile-plone.pageletlayout:default</dependency>
     <!-- The block rendering pipeline (aurora-block-* views, blocks CSS). -->
     <dependency>profile-plone.blicca.auroraeditor:default</dependency>
   </dependencies>

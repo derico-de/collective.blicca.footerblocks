@@ -534,15 +534,18 @@ dependencies = [
     { name = "collective-volto-footer" },
     { name = "plone" },
     { name = "plone-blicca-auroraeditor" },
-    { name = "plone-pageletlayout" },
     { name = "plone-rest" },
     { name = "setuptools" },
 ]
 
 [package.optional-dependencies]
+pageletlayout = [
+    { name = "plone-pageletlayout" },
+]
 test = [
     { name = "plone-app-multilingual" },
     { name = "plone-app-testing" },
+    { name = "plone-pageletlayout" },
     { name = "plone-testing" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -557,7 +560,8 @@ requires-dist = [
     { name = "plone-app-multilingual", marker = "extra == 'test'" },
     { name = "plone-app-testing", marker = "extra == 'test'" },
     { name = "plone-blicca-auroraeditor", editable = "../plone.blicca.auroraeditor" },
-    { name = "plone-pageletlayout", editable = "../plone.pageletlayout" },
+    { name = "plone-pageletlayout", marker = "extra == 'pageletlayout'", editable = "../plone.pageletlayout" },
+    { name = "plone-pageletlayout", marker = "extra == 'test'", editable = "../plone.pageletlayout" },
     { name = "plone-rest" },
     { name = "plone-testing", marker = "extra == 'test'" },
     { name = "pytest", marker = "extra == 'test'" },
@@ -566,7 +570,7 @@ requires-dist = [
     { name = "requests", marker = "extra == 'test'" },
     { name = "setuptools", specifier = "<81" },
 ]
-provides-extras = ["test"]
+provides-extras = ["pageletlayout", "test"]
 
 [[package]]
 name = "collective-monkeypatcher"

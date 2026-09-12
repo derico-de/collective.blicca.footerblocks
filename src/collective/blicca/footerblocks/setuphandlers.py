@@ -15,6 +15,7 @@ class HiddenProfiles:
         return [
             "collective.blicca.footerblocks:uninstall",
             "collective.blicca.footerblocks.upgrades:1001",
+            "collective.blicca.footerblocks.upgrades:1002",
         ]
 
 

@@ -1,6 +1,6 @@
-<footer class="element-footerblocks"
-        xmlns:tal="http://xml.zope.org/namespaces/tal"
-        tal:condition="view/blocks_html">
+<div class="element-footerblocks"
+     xmlns:tal="http://xml.zope.org/namespaces/tal"
+     tal:condition="view/blocks_html">
   <div class="aurora-blocks-view"
        tal:content="structure view/blocks_html">rendered footer blocks</div>
-</footer>
+</div>

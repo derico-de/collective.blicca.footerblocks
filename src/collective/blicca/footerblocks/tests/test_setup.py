@@ -26,6 +26,19 @@ class TestSetup:
 
         assert ICollectiveBliccaFooterblocksLayer in utils.registered_layers()
 
+    def test_browserlayer_is_not_pageletlayouts(self):
+        """Installing this add-on alone must not switch pageletlayout on."""
+        from plone.pageletlayout.interfaces import IPlonePageletlayoutLayer
+
+        from collective.blicca.footerblocks.interfaces import ICollectiveBliccaFooterblocksLayer
+
+        assert not ICollectiveBliccaFooterblocksLayer.extends(IPlonePageletlayoutLayer)
+
+    def test_pageletlayout_is_not_pulled_in(self):
+        """Stock Plone works out of the box; pageletlayout is optional."""
+        installer = api.addon.get_installer(self.portal)
+        assert not installer.is_product_installed("plone.pageletlayout")
+
     def test_footer_behavior_available(self):
         """The dependency profile enabled the behavior on the site type."""
         from collective.volto.footer.behaviors.footer import IEditableFooterMarker

@@ -1,0 +1,26 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    i18n_domain="collective.blicca.footerblocks">
+
+  <genericsetup:registerProfile
+      name="1002"
+      title="collective.blicca.footerblocks: upgrade to 1002"
+      directory="1002"
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+
+  <genericsetup:upgradeSteps
+      source="1001"
+      destination="1002"
+      profile="collective.blicca.footerblocks:default">
+
+    <genericsetup:upgradeStep
+        title="Place the footer element in the stock footer manager"
+        description="Imports the plone.portalfooter viewlet order for stock Plone sites"
+        handler=".v1002.upgrade"
+        />
+
+  </genericsetup:upgradeSteps>
+
+</configure>

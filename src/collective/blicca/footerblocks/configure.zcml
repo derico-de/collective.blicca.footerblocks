@@ -4,32 +4,40 @@
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
     xmlns:i18n="http://namespaces.zope.org/i18n"
     xmlns:plone="http://namespaces.plone.org/plone"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="collective.blicca.footerblocks">
 
   <i18n:registerTranslations directory="locales" />
 
   <include file="permissions.zcml" />
 
-  <include package="plone.pageletlayout" file="meta.zcml" />
   <include package="plone.rest" file="meta.zcml" />
 
-  <!-- The footer-blocks element: a chrome pagelet plus the wrapper viewlet
-       that slots it into the whole-body layout manager; its position among
-       the footer rows comes from profiles/default/viewlets.xml. -->
-  <plone:chromepagelet
-      name="collective.blicca.footerblocks.footerblocks"
-      class=".pagelets.FooterBlocksChromePagelet"
-      template="templates/footerblocks.pt"
-      layer=".interfaces.ICollectiveBliccaFooterblocksLayer"
-      />
+  <!-- The stock frame, always loaded: the footer blocks in Plone's own
+       IPortalFooter (main_template renders it inside
+       <footer id="portal-footer-wrapper">, full width) and the blocks
+       stylesheets in IHtmlHead. Their positions come from
+       profiles/default/viewlets.xml. -->
   <browser:viewlet
       name="collective.blicca.footerblocks.footerblocks"
-      pagelet="collective.blicca.footerblocks.footerblocks"
-      class="plone.pageletlayout.pagelets.layout.PageletViewlet"
-      manager="plone.pageletlayout.pagelets.layout.ILayoutManager"
+      manager="plone.app.layout.viewlets.interfaces.IPortalFooter"
+      class=".viewlets.FooterBlocksViewlet"
+      template="templates/footerblocks.pt"
       layer=".interfaces.ICollectiveBliccaFooterblocksLayer"
       permission="zope2.View"
       />
+  <browser:viewlet
+      name="collective.blicca.footerblocks.styles"
+      manager="plone.app.layout.viewlets.interfaces.IHtmlHead"
+      class=".viewlets.FooterBlocksStylesViewlet"
+      layer=".interfaces.ICollectiveBliccaFooterblocksLayer"
+      permission="zope2.View"
+      />
+
+  <!-- The plone.pageletlayout frame, when that package is importable: the
+       layout element under the same name (the bridge then skips the stock
+       twin). The head styles override is overrides.zcml. -->
+  <include file="pageletlayout.zcml" zcml:condition="installed plone.pageletlayout" />
 
   <!-- The footer editing surface (auroraeditor ADR 0015): the edit page,
        the plone.rest save target the mount contract's contentUrl points
@@ -66,16 +74,6 @@
       for="* .interfaces.ICollectiveBliccaFooterblocksLayer"
       provides="plone.blicca.auroraeditor.interfaces.IEditSurfaceTab"
       factory=".tabs.FooterTab"
-      />
-
-  <!-- Same provider name as the base styles pagelet, this add-on's layer:
-       every page's head gets the blocks stylesheets the footer needs
-       (the layer extends IPlonePageletlayoutLayer, so this registration
-       is unambiguously more specific). -->
-  <plone:chromepagelet
-      name="plone.pageletlayout.styles"
-      class=".pagelets.FooterStylesChromePagelet"
-      layer=".interfaces.ICollectiveBliccaFooterblocksLayer"
       />
 
   <genericsetup:registerProfile

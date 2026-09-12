@@ -2,6 +2,23 @@
 
 ## 1.0.0a1 (unreleased)
 
+- The footer renders on stock Plone 6 — Barceloneta, or any Diazo theme —
+  and `plone.pageletlayout` becomes an optional frame instead of a
+  requirement. The rendering logic moved into the frame-neutral
+  `footer.footer_blocks_html()`; a viewlet in Plone's `IPortalFooter`
+  (before the footer portlets) and an `IHtmlHead` viewlet for the blocks
+  stylesheets are always registered, while the layout element and the
+  `plone.pageletlayout.styles` head override load only when pageletlayout
+  is importable (`pageletlayout.zcml`, `overrides.zcml`). Both frames
+  register the footer under one name, so pageletlayout's bridge skips the
+  stock twin on a pagelet page. The element's root is a `<div>` now — stock
+  `main_template` already wraps the footer manager in a `<footer>`. The
+  browser layer no longer extends `IPlonePageletlayoutLayer`: installing
+  this package alone used to switch on every layer-bound pageletlayout
+  registration without its profile. `plone.pageletlayout` left the
+  dependencies (extra `pageletlayout`) and the profile's dependency list.
+  Upgrade step 1001 → 1002 imports the new `plone.portalfooter` order.
+
 - The Footer tab sends the page it sits on along as the `origin` request
   parameter, and `@@edit-footer` renders that page's tab strip instead of
   the carrier's. The carrier's strip had no Content tab (a site root has no

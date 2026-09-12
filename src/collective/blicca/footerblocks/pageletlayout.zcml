@@ -1,0 +1,33 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    i18n_domain="collective.blicca.footerblocks">
+
+  <!-- The plone.pageletlayout frame. Included from configure.zcml under
+       zcml:condition="installed plone.pageletlayout"; inert on a request
+       without IPlonePageletlayoutLayer. -->
+
+  <include package="plone.pageletlayout" file="meta.zcml" />
+
+  <!-- The footer-blocks element: a chrome pagelet plus the wrapper viewlet
+       that slots it into the whole-body layout manager; its position among
+       the footer rows comes from profiles/default/viewlets.xml. Same name
+       as the stock viewlet (configure.zcml): pageletlayout's bridge skips
+       the stock twin on a pagelet page. -->
+  <plone:chromepagelet
+      name="collective.blicca.footerblocks.footerblocks"
+      class=".pagelets.FooterBlocksChromePagelet"
+      template="templates/footerblocks.pt"
+      layer=".interfaces.ICollectiveBliccaFooterblocksLayer"
+      />
+  <browser:viewlet
+      name="collective.blicca.footerblocks.footerblocks"
+      pagelet="collective.blicca.footerblocks.footerblocks"
+      class="plone.pageletlayout.pagelets.layout.PageletViewlet"
+      manager="plone.pageletlayout.pagelets.layout.ILayoutManager"
+      layer=".interfaces.ICollectiveBliccaFooterblocksLayer"
+      permission="zope2.View"
+      />
+
+</configure>

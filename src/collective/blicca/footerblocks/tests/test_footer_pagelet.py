@@ -1,43 +1,39 @@
-"""The footer-blocks element: placement, inheritance, markup, stylesheets."""
+"""The plone.pageletlayout frame: the footer element (pagelets.py).
+
+On the pageletlayout fixture the site has pageletlayout's profile applied,
+so a request carrying its layer renders the whole-body layout — with the
+footer as a layout element, and the stock twin skipped by the bridge.
+"""
 
 import pytest
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.app.viewletmanager.interfaces import IViewletSettingsStorage
-from plone.blicca.auroraeditor import SOMERSAULT_BLOCK_ID
-from plone.blicca.auroraeditor import SOMERSAULT_BLOCK_TYPE
 from plone.blicca.auroraeditor.interfaces import IPloneBliccaAuroraeditorLayer
+from plone.pageletlayout.interfaces import IPlonePageletlayoutLayer
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.contentprovider.interfaces import IContentProvider
 from zope.interface import alsoProvides
+from zope.interface import noLongerProvides
 
 from collective.blicca.footerblocks.interfaces import ICollectiveBliccaFooterblocksLayer
 from collective.blicca.footerblocks.pagelets import FooterBlocksChromePagelet
+from collective.blicca.footerblocks.pagelets import FooterStylesChromePagelet
+from collective.blicca.footerblocks.tests.test_footer_rendering import footer_value
 
 
 VIEWLET = "collective.blicca.footerblocks.footerblocks"
 MANAGER = "plone.pageletlayout.layout"
-
-
-def footer_value(text):
-    """A footer container the way Aurora saves one: a somersault block."""
-    return {
-        "blocks": {
-            SOMERSAULT_BLOCK_ID: {
-                "@type": SOMERSAULT_BLOCK_TYPE,
-                "value": [{"type": "p", "children": [{"text": text}]}],
-            }
-        },
-        "blocks_layout": {"items": [SOMERSAULT_BLOCK_ID]},
-    }
+ELEMENT = '<div class="element-footerblocks">'
+BLOCKS_CSS = "++resource++plone.blicca.auroraeditor.blocks.css"
 
 
 class TestPlacement:
     """The stored layout order, not the registration."""
 
     @pytest.fixture(autouse=True)
-    def _setup(self, integration):
+    def _setup(self, pageletlayout_integration):
         storage = getUtility(IViewletSettingsStorage)
         self.order = list(storage.getOrder(MANAGER, "Plone Default"))
 
@@ -56,119 +52,92 @@ class TestPlacement:
             assert self.order.index(VIEWLET) < self.order.index(row), row
 
 
-class RenderingBase:
+class PageletPageBase:
     @pytest.fixture(autouse=True)
-    def _setup(self, integration):
-        self.portal = integration["portal"]
-        self.request = integration["request"]
+    def _setup(self, pageletlayout_integration):
+        self.portal = pageletlayout_integration["portal"]
+        self.request = pageletlayout_integration["request"]
+        alsoProvides(self.request, IPlonePageletlayoutLayer)
         alsoProvides(self.request, ICollectiveBliccaFooterblocksLayer)
         alsoProvides(self.request, IPloneBliccaAuroraeditorLayer)
         setRoles(self.portal, TEST_USER_ID, ["Manager"])
         self.portal.invokeFactory("Document", "somewhere", title="Somewhere")
 
-    def _render(self, context):
-        pagelet = FooterBlocksChromePagelet(context, self.request)
-        pagelet.update()
-        return pagelet.render()
+    def _page(self, context=None, name="pagelet_view"):
+        return (context or self.portal.somewhere).restrictedTraverse(name)()
+
+    def _provider(self, name):
+        view = self.portal.restrictedTraverse("@@plone")
+        provider = getMultiAdapter(
+            (self.portal.somewhere, self.request, view), IContentProvider, name=name
+        )
+        provider.update()
+        return provider
 
 
-class TestRendering(RenderingBase):
+class TestElement(PageletPageBase):
     def test_it_is_registered_under_the_name_the_layout_asks_for(self):
         self.portal.footer = footer_value("registered words")
-        view = self.portal.restrictedTraverse("@@plone")
-        pagelet = getMultiAdapter(
-            (self.portal.somewhere, self.request, view),
-            IContentProvider,
-            name=VIEWLET,
-        )
-        pagelet.update()
-        assert "element-footerblocks" in pagelet.render()
+        provider = self._provider(VIEWLET)
+        assert isinstance(provider, FooterBlocksChromePagelet)
+        assert "element-footerblocks" in provider.render()
 
-    def test_footer_blocks_render_inside_the_scope_root(self):
+    def test_the_pagelet_renders_inside_the_scope_root(self):
         self.portal.footer = footer_value("footer words")
-        markup = self._render(self.portal.somewhere)
-        assert "element-footerblocks" in markup
+        markup = self._provider(VIEWLET).render()
+        assert ELEMENT in markup
         assert "aurora-blocks-view" in markup
         assert "footer words" in markup
 
-    def test_the_footer_is_inherited_from_the_site_root(self):
-        """A page deep in the tree shows the nearest ancestor's footer."""
-        self.portal.somewhere.invokeFactory("Document", "deeper")
-        self.portal.footer = footer_value("inherited words")
-        assert "inherited words" in self._render(self.portal.somewhere.deeper)
-
-    def test_unauthored_footer_renders_no_blocks(self):
-        """Dexterity serves the behavior schema's default (the slate "Edit"
-        seed) for a never-set field; the pagelet reads only the persisted
-        value, so a never-authored footer contributes no blocks at all —
-        no wrapper, no invisible slate placeholders. (For an editor the
-        element still carries the edit link — see test_footer_editing.)"""
-        markup = self._render(self.portal.somewhere)
-        assert "aurora-blocks-view" not in markup
-
-    def test_block_addon_nodes_dispatch_to_their_renderer(self):
-        """ "Our blocks" work in the footer: a ``ploneBlock`` node inside the
-        somersault tree dispatches to its ``aurora-block-<@type>`` view,
-        exactly as in a page body."""
-        from plone.blicca.auroraeditor.rendering import BaseBlockView
-        from zope.component import getGlobalSiteManager
-        from zope.interface import Interface
-
-        class TestBlockView(BaseBlockView):
-            def __call__(self):
-                return '<div class="block-testblock">from the footer</div>'
-
-        gsm = getGlobalSiteManager()
-        gsm.registerAdapter(
-            TestBlockView,
-            (Interface, Interface),
-            Interface,
-            name="aurora-block-testblock",
-        )
-        try:
-            self.portal.footer = {
-                "blocks": {
-                    SOMERSAULT_BLOCK_ID: {
-                        "@type": SOMERSAULT_BLOCK_TYPE,
-                        "value": [
-                            {"type": "p", "children": [{"text": "before"}]},
-                            {
-                                "type": "ploneBlock",
-                                "@type": "testblock",
-                                "children": [{"text": ""}],
-                            },
-                        ],
-                    }
-                },
-                "blocks_layout": {"items": [SOMERSAULT_BLOCK_ID]},
-            }
-            markup = self._render(self.portal.somewhere)
-        finally:
-            gsm.unregisterAdapter(
-                TestBlockView,
-                (Interface, Interface),
-                Interface,
-                name="aurora-block-testblock",
-            )
-        assert "block-testblock" in markup
-        assert "from the footer" in markup
-        assert "before" in markup
-
-    def test_empty_footer_container_renders_no_blocks(self):
-        self.portal.footer = {"blocks": {}, "blocks_layout": {"items": []}}
-        assert "aurora-blocks-view" not in self._render(self.portal.somewhere)
+    def test_an_unauthored_footer_renders_no_element(self):
+        assert "element-footerblocks" not in self._provider(VIEWLET).render()
 
 
-class TestStyles(RenderingBase):
+class TestPageletPage(PageletPageBase):
+    def test_the_frame_is_the_pagelet_layout(self):
+        html = self._page()
+        assert "element-portalfooter" in html
+        assert 'id="portal-footer-wrapper"' not in html
+
+    def test_the_footer_renders_exactly_once(self):
+        self.portal.footer = footer_value("layout words")
+        html = self._page()
+        assert html.count(ELEMENT) == 1
+        assert html.count("layout words") == 1
+
+    def test_the_element_renders_and_the_bridge_skips_the_twin(self):
+        # The one occurrence is the layout element, before the footer rows
+        # — not the stock viewlet riding the portalfooter bridge.
+        self.portal.footer = footer_value("layout words")
+        html = self._page()
+        bridge = html.index("element-portalfooter")
+        bridge_end = html.index("element-", bridge + 1)
+        assert "element-footerblocks" not in html[bridge:bridge_end]
+        assert html.index(ELEMENT) < html.index("element-copyright")
+
+    def test_the_footer_stays_off_its_editing_surface(self):
+        self.portal.footer = footer_value("words being edited")
+        self.request["ACTUAL_URL"] = f"{self.portal.absolute_url()}/@@edit-footer"
+        assert "element-footerblocks" not in self._page(self.portal, "@@edit-footer")
+
+
+class TestStyles(PageletPageBase):
     """The overridden styles provider ships the blocks stylesheets."""
 
-    def test_every_page_head_gets_the_blocks_css(self):
-        view = self.portal.restrictedTraverse("@@plone")
-        provider = getMultiAdapter(
-            (self.portal.somewhere, self.request, view),
-            IContentProvider,
-            name="plone.pageletlayout.styles",
-        )
-        provider.update()
+    def test_the_override_replaced_the_base_provider(self):
+        assert isinstance(self._provider("plone.pageletlayout.styles"), FooterStylesChromePagelet)
+
+    def test_every_page_head_gets_the_blocks_css_once(self):
+        html = self._page()
+        head = html[: html.index("</head>")]
+        assert head.count(BLOCKS_CSS) == 1
+
+    def test_a_pageletlayout_request_without_the_addon_gets_the_base_output(self):
+        # A second site in the same instance, pageletlayout but no
+        # footerblocks: the override is registered on pageletlayout's layer
+        # and must behave like the stanza it replaced.
+        noLongerProvides(self.request, ICollectiveBliccaFooterblocksLayer)
+        provider = self._provider("plone.pageletlayout.styles")
         markup = provider.render()
-        assert "++resource++plone.blicca.auroraeditor.blocks.css" in markup
+        assert BLOCKS_CSS not in markup
+        assert "stylesheet" in markup

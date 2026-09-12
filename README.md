@@ -41,15 +41,20 @@ and mounts the Aurora editor on it.
 
 ## Requirements
 
-- Plone 6.0 or later
+- Plone 6.0 or later — stock Plone works out of the box, with Barceloneta
+  or any Diazo theme
 - `plone.blicca.auroraeditor` 1.0.0a2 or later
-- `plone.pageletlayout`, the layout this package adds its footer element to
 - `collective.volto.footer`, for the storage behavior
 - `plone.rest`
 
 All of these are declared as dependencies and pulled in on install.
-`plone.app.multilingual` is not a dependency; it is only needed for the
-opt-in per-language footers profile, on a site that already has it.
+
+`plone.pageletlayout` is optional: when it is importable, this package also
+registers its footer as a layout element and hooks into the layout's head
+(the `pageletlayout` extra declares the pairing, the ZCML condition does
+the work). `plone.app.multilingual` is not a dependency either; it is only
+needed for the opt-in per-language footers profile, on a site that already
+has it.
 
 ## Installation
 
@@ -66,13 +71,20 @@ Then install **Collective Blicca Footerblocks** from Plone's Add-ons control
 panel, or apply the `collective.blicca.footerblocks:default` GenericSetup
 profile. Installing it:
 
-- installs `collective.volto.footer`, `plone.pageletlayout` and
-  `plone.blicca.auroraeditor` if they are not installed yet, which enables
-  the editable-footer behavior on the Plone Site type;
-- adds the footer element to the page layout, directly above the
-  copyright, colophon and site-actions rows of `plone.pageletlayout`;
+- installs `collective.volto.footer` and `plone.blicca.auroraeditor` if
+  they are not installed yet, which enables the editable-footer behavior on
+  the Plone Site type;
+- places the footer viewlet in Plone's footer, directly above the footer
+  portlets (`plone.footer`), colophon and site actions; on a
+  `plone.pageletlayout` site the same element is placed in the page layout,
+  directly above the copyright, colophon and site-actions rows;
 - makes every page load the blocks stylesheets, so footer blocks are styled
   on pages that are not block pages themselves.
+
+Installing `plone.pageletlayout` *after* this package restates the layout
+order and pushes the footer element to the front of the page; re-import
+this package's `viewlets` step (portal_setup → Import) to put it back above
+the footer rows.
 
 ## Editing the footer
 
@@ -156,15 +168,21 @@ block.
 ## Rendered markup
 
 ```html
-<footer class="element-footerblocks">
+<div class="element-footerblocks">
   <div class="aurora-blocks-view">…rendered blocks…</div>
-</footer>
+</div>
 ```
+
+On stock Plone this sits inside `main_template`'s
+`<footer id="portal-footer-wrapper">`, which is why the element is a `<div>`
+and not a `<footer>` of its own (a nested `<footer>` is invalid HTML). On a
+`plone.pageletlayout` site it is a layout element between the page body and
+the copyright row.
 
 The element is emitted only when the footer has blocks, and it is suppressed
 on the `@@edit-footer` surface so the content being edited is not repeated
 below the editor. Visitors to a site without an authored footer get no
-`<footer>` element.
+footer-blocks element at all.
 
 `.aurora-blocks-view` is the public scope root of the shared blocks CSS and
 of every block add-on's scoped stylesheet, so a theme styles footer blocks
@@ -176,12 +194,18 @@ through `.element-footerblocks`.
 - **Storage.** The footer is the `footer` JSON field of the
   `collective.volto.footer.editable` behavior. It holds one Aurora container
   block whose tree carries the text and any block add-on's nodes.
-- **Rendering.** A `plone.pageletlayout` chrome pagelet walks up the
-  acquisition chain from the current page to the nearest object with the
-  behavior, reads its persisted footer value, and renders the blocks through
-  the same pipeline that renders a page body. Only a persisted value counts;
-  the behavior's schema default is ignored, which is what keeps an
-  unauthored footer invisible.
+- **Rendering.** `footer.footer_blocks_html()` walks up the acquisition
+  chain from the current page to the nearest object with the behavior,
+  reads its persisted footer value, and renders the blocks through the same
+  pipeline that renders a page body. Only a persisted value counts; the
+  behavior's schema default is ignored, which is what keeps an unauthored
+  footer invisible. Two registrations share that function and one template,
+  under one name (`collective.blicca.footerblocks.footerblocks`): a viewlet
+  in Plone's `IPortalFooter` manager, always, and — when
+  `plone.pageletlayout` is importable — a chrome pagelet in its whole-body
+  layout manager. On a pageletlayout page the layout renders the element
+  and pageletlayout's stock-manager bridge skips the same-named stock
+  viewlet, so the footer appears once on either frame.
 - **Editing.** An ``IEditSurfaceTab`` subscriber resolves the nearest footer
   carrier and puts a **Footer** tab in the Aurora editor's tab strip when the
   current user may modify that carrier. The `@@edit-footer` page mounts the Aurora editor on its footer
@@ -189,10 +213,14 @@ through `.element-footerblocks`.
   block deserialization transformers, and a browser `GET` on `@footerblocks`
   redirects to the page the author came from (the `origin` parameter the tab
   sends along), or to the carrier, after save or cancel.
-- **Stylesheets.** The package overrides the `plone.pageletlayout.styles`
-  head provider on its own browser layer and appends the blocks stylesheets
-  after the resource registry output. On block pages the same links are then
-  present twice with identical URLs, which the browser fetches once.
+- **Stylesheets.** On stock Plone an `IHtmlHead` viewlet emits the blocks
+  stylesheet links. On a `plone.pageletlayout` site `overrides.zcml`
+  replaces the `plone.pageletlayout.styles` head provider with a subclass
+  that appends the same links after the resource registry output, only on
+  requests carrying this package's browser layer (pageletlayout never
+  renders `plone.htmlhead`, so nothing doubles up). On block pages the same
+  links are then present twice with identical URLs, which the browser
+  fetches once.
 
 ## Development
 

@@ -1,0 +1,21 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
+    i18n_domain="collective.blicca.footerblocks"
+    zcml:condition="installed plone.pageletlayout">
+
+  <include package="plone.pageletlayout" file="meta.zcml" />
+
+  <!-- The head styles provider of every pageletlayout page, replaced: same
+       name, same layer as the base stanza in plone.pageletlayout's
+       chrome.zcml, so this is an override rather than a conflict. The
+       class appends the blocks stylesheets only on a request carrying
+       this add-on's layer. -->
+  <plone:chromepagelet
+      name="plone.pageletlayout.styles"
+      class=".pagelets.FooterStylesChromePagelet"
+      layer="plone.pageletlayout.interfaces.IPlonePageletlayoutLayer"
+      />
+
+</configure>

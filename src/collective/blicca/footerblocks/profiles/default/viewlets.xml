@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object>
-  <!-- The footer-blocks element joins the whole-body layout manager's order
-       directly before the first plone.pageletlayout footer row, so the
-       editable footer closes the page above copyright/colophon/siteactions.
+  <!-- Stock Plone: the footer-blocks viewlet joins IPortalFooter directly
+       before plone.footer (the footer portlets), so the editable footer
+       closes the page above the footer portlets, colophon and site actions
+       — the same spot it has on a pagelet page.
 
-       insert-before, not a restated order: plone.pageletlayout owns the
-       canonical sequence and this file must not fork it — the importer
-       re-inserts the one name at the anchor, additively and idempotently
-       (the plonetheme.derico.contactband precedent). -->
+       insert-before, not a restated order: Plone owns the canonical
+       sequence and this file must not fork it — the importer re-inserts
+       the one name at the anchor, additively and idempotently. -->
+  <order manager="plone.portalfooter" skinname="Plone Default">
+    <viewlet name="collective.blicca.footerblocks.footerblocks"
+             insert-before="plone.footer" />
+  </order>
+
+  <!-- plone.pageletlayout: the same element joins the whole-body layout
+       manager's order directly before the first pageletlayout footer row.
+       Harmless on a site without pageletlayout — an order for a manager
+       nothing renders (the plonetheme.derico.contactband precedent). -->
   <order manager="plone.pageletlayout.layout" skinname="Plone Default">
     <viewlet name="collective.blicca.footerblocks.footerblocks"
              insert-before="plone.pageletlayout.copyright" />

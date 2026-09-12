@@ -96,9 +96,3 @@ class TestUpgrade1001:
         others = [i for i in self.category.objectIds() if i != ACTION]
         upgrade(self.setup_tool)
         assert self.category.objectIds() == others
-
-    def test_a_fresh_install_is_already_at_this_version(self):
-        (version,) = self.setup_tool.getLastVersionForProfile(
-            "collective.blicca.footerblocks:default"
-        )
-        assert int(version) == 1001

@@ -31,8 +31,8 @@ from Acquisition import aq_inner
 from Acquisition import aq_parent
 from zope.lifecycleevent import modified
 
-from collective.blicca.footerblocks.pagelets import authored_footer
-from collective.blicca.footerblocks.pagelets import footer_carrier
+from collective.blicca.footerblocks.footer import authored_footer
+from collective.blicca.footerblocks.footer import footer_carrier
 from collective.volto.footer.behaviors.footer import IEditableFooterMarker
 
 

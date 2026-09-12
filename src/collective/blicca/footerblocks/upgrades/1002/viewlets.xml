@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object>
+  <!-- Stock Plone: the footer-blocks viewlet before the footer portlets.
+       Mirrors profiles/default/viewlets.xml; the layout-manager entry is
+       not restated, a site at 1001 already has it. -->
+  <order manager="plone.portalfooter" skinname="Plone Default">
+    <viewlet name="collective.blicca.footerblocks.footerblocks"
+             insert-before="plone.footer" />
+  </order>
+</object>

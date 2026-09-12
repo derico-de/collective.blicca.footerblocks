@@ -295,11 +295,9 @@ class TestSaveUrlRedirect(EditingBase):
 
 class TestFooterChromePolicy(EditingBase):
     def _render(self, context):
-        from collective.blicca.footerblocks.pagelets import FooterBlocksChromePagelet
+        from collective.blicca.footerblocks.footer import footer_blocks_html
 
-        pagelet = FooterBlocksChromePagelet(context, self.request)
-        pagelet.update()
-        return pagelet.render()
+        return footer_blocks_html(context, self.request)
 
     def test_unauthored_footer_adds_no_empty_band_for_editors(self):
         """The toolbar action is now the way into an unauthored footer."""

@@ -1,7 +1,7 @@
 [project]
 name = "collective.blicca.footerblocks"
 version = "1.0.0a1"
-description = "Blicca rendering of editable footer blocks (collective.volto.footer) in a pagelet chrome"
+description = "Blicca rendering of editable footer blocks (collective.volto.footer) on stock Plone and plone.pageletlayout sites"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "GPL-2.0-or-later"}
@@ -27,13 +27,19 @@ dependencies = [
     "Plone>=6.0",
     "collective.volto.footer",
     "plone.blicca.auroraeditor>=1.0.0a2",
-    "plone.pageletlayout",
     "plone.rest",
     "setuptools<81",
 ]
 
 [project.optional-dependencies]
+# Documentation value only: the pageletlayout frame is picked up through a
+# ZCML condition whenever the package is importable.
+pageletlayout = [
+    "plone.pageletlayout",
+]
 test = [
+    # The pageletlayout fixture applies that profile.
+    "plone.pageletlayout",
     # The opt-in multilingual profile puts the footer behavior on
     # plone.app.multilingual's LRF type; its tests need that type to exist.
     "plone.app.multilingual",

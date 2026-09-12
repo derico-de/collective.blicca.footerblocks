@@ -1,13 +1,12 @@
 """Module where all interfaces, events and exceptions live."""
 
-from plone.pageletlayout.interfaces import IPlonePageletlayoutLayer
+from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 
 
-class ICollectiveBliccaFooterblocksLayer(IPlonePageletlayoutLayer):
+class ICollectiveBliccaFooterblocksLayer(IDefaultBrowserLayer):
     """Marker interface that defines a browser layer.
 
-    Extends the pagelet-layout layer so this add-on's chrome-pagelet
-    override (the ``plone.pageletlayout.styles`` provider, same name, this
-    layer) is unambiguously more specific than the base registration — the
-    plonetheme.clara precedent.
+    A plain layer: it must not extend plone.pageletlayout's, or installing
+    this add-on alone on a stock site would switch on every one of
+    pageletlayout's layer-bound registrations without its profile.
     """

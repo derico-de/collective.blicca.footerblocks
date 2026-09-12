@@ -18,9 +18,9 @@ from plone.app.testing import TEST_USER_NAME
 from plone.blicca.auroraeditor import SOMERSAULT_BLOCK_ID
 from zope.interface import alsoProvides
 
+from collective.blicca.footerblocks.footer import footer_blocks_html
 from collective.blicca.footerblocks.interfaces import ICollectiveBliccaFooterblocksLayer
 from collective.blicca.footerblocks.multilingual import language_root_folders
-from collective.blicca.footerblocks.pagelets import FooterBlocksChromePagelet
 from collective.blicca.footerblocks.tests.test_multilingual import footer_container
 from collective.blicca.footerblocks.tests.test_multilingual import make_multilingual
 from collective.blicca.footerblocks.upgrades.multilingual_v1001 import upgrade
@@ -107,9 +107,7 @@ class TestMultilingualUpgrade1001:
         assert upgrade(self.setup_tool) == []
 
     def _rendered(self, context):
-        pagelet = FooterBlocksChromePagelet(context, self.request)
-        pagelet.update()
-        return pagelet.blocks_html
+        return footer_blocks_html(context, self.request)
 
 
 class TestASiteThatNeverAppliedTheProfile:

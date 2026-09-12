@@ -28,10 +28,10 @@ from zope.component import getMultiAdapter
 from zope.component import subscribers
 from zope.interface import alsoProvides
 
+from collective.blicca.footerblocks.footer import footer_blocks_html
 from collective.blicca.footerblocks.interfaces import ICollectiveBliccaFooterblocksLayer
 from collective.blicca.footerblocks.multilingual import language_root_folders
 from collective.blicca.footerblocks.multilingual import seed_language_footers
-from collective.blicca.footerblocks.pagelets import FooterBlocksChromePagelet
 from collective.volto.footer.behaviors.footer import IEditableFooterMarker
 
 
@@ -176,9 +176,7 @@ class TestMultilingualProfile:
             assert self._rendered(folder) == ""
 
     def _rendered(self, context):
-        pagelet = FooterBlocksChromePagelet(context, self.request)
-        pagelet.update()
-        return pagelet.blocks_html
+        return footer_blocks_html(context, self.request)
 
 
 class TestTheProfileSeeds:
@@ -248,9 +246,7 @@ class TestTheProfileSeeds:
             assert "footer" not in vars(folder)
 
     def _rendered(self, context):
-        pagelet = FooterBlocksChromePagelet(context, self.request)
-        pagelet.update()
-        return pagelet.blocks_html
+        return footer_blocks_html(context, self.request)
 
 
 class TestSeedLanguageFooters:
