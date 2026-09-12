@@ -174,10 +174,17 @@ block.
 ```
 
 On stock Plone this sits inside `main_template`'s
-`<footer id="portal-footer-wrapper">`, which is why the element is a `<div>`
-and not a `<footer>` of its own (a nested `<footer>` is invalid HTML). On a
-`plone.pageletlayout` site it is a layout element between the page body and
-the copyright row.
+`<footer id="portal-footer-wrapper">`, before the footer portlets, which is
+why the element is a `<div>` and not a `<footer>` of its own (a nested
+`<footer>` is invalid HTML). On a `plone.pageletlayout` site it is a layout
+element between the page body and the copyright row.
+
+A Diazo theme decides where that markup ends up. Barceloneta's `rules.xml`
+moves every child of `#portal-footer-wrapper` that is not one of its own
+`.row`s to the end of `<body>`, so on Barceloneta the footer blocks render
+*below* the theme's copyright/colophon/site-actions footer, outside its
+`<footer>`. A theme that wants the band above its footer copies
+`.element-footerblocks` into place with a rule of its own.
 
 The element is emitted only when the footer has blocks, and it is suppressed
 on the `@@edit-footer` surface so the content being edited is not repeated
