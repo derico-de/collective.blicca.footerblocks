@@ -15,21 +15,9 @@ there at all. Nothing doubles up on either frame.
 """
 
 from plone.app.layout.viewlets import ViewletBase
-from plone.blicca.auroraeditor.rendering import blocks_css_urls
 
 from collective.blicca.footerblocks.footer import footer_blocks_html
-
-
-def stylesheet_links(context):
-    """``<link>`` tags for the blocks stylesheets, same URLs, same order.
-
-    ``blocks_view.pt`` emits these in its head slot — on blocks pages only.
-    The footer renders blocks on *every* page, so every page's head gets the
-    same links (busted URLs, contract §6.3). On a blocks page they then
-    appear twice; the URLs are identical, so the browser fetches once and
-    the idempotent rules apply once effectively.
-    """
-    return "".join(f'<link rel="stylesheet" href="{url}" />' for url in blocks_css_urls(context))
+from collective.blicca.footerblocks.footer import stylesheet_links
 
 
 class FooterBlocksViewlet(ViewletBase):

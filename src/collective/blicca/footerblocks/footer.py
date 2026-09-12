@@ -34,6 +34,7 @@ disappears rather than shipping an empty band.
 from Acquisition import aq_base
 from Acquisition import aq_chain
 from Acquisition import aq_inner
+from plone.blicca.auroraeditor.rendering import blocks_css_urls
 from plone.blicca.auroraeditor.rendering import render_blocks
 
 from collective.volto.footer.behaviors.footer import IEditableFooterMarker
@@ -82,6 +83,10 @@ def footer_blocks_html(context, request):
     Empty on the footer's own editing surface (the published footer stays
     out of the editor), with no carrier up the chain, and for an unauthored
     or empty footer.
+
+    Rendered once per request and footer: on a plone.pageletlayout page the
+    stock viewlet is updated by the bridged manager before the bridge drops
+    it, so the element and its twin both ask — the second gets the memo.
     """
     if is_footer_editor(request):
         return ""
@@ -89,9 +94,26 @@ def footer_blocks_html(context, request):
     footer = authored_footer(carrier)
     if carrier is None or not footer.get("blocks"):
         return ""
-    return render_blocks(
+    memo = getattr(request, "_footerblocks_memo", None)
+    if memo is not None and memo[0] is aq_base(carrier) and memo[1] is footer:
+        return memo[2]
+    html = render_blocks(
         carrier,
         request,
         footer.get("blocks"),
         footer.get("blocks_layout"),
     )
+    request._footerblocks_memo = (aq_base(carrier), footer, html)
+    return html
+
+
+def stylesheet_links(context):
+    """``<link>`` tags for the blocks stylesheets, same URLs, same order.
+
+    ``blocks_view.pt`` emits these in its head slot — on blocks pages only.
+    The footer renders blocks on *every* page, so every page's head gets the
+    same links (busted URLs, contract §6.3). On a blocks page they then
+    appear twice; the URLs are identical, so the browser fetches once and
+    the idempotent rules apply once effectively.
+    """
+    return "".join(f'<link rel="stylesheet" href="{url}" />' for url in blocks_css_urls(context))

@@ -116,3 +116,26 @@ class TestRendering:
         assert "block-testblock" in markup
         assert "from the footer" in markup
         assert "before" in markup
+
+    def test_the_footer_is_rendered_once_per_request(self, monkeypatch):
+        """Both frames ask on a pagelet page (the bridge updates the stock
+        twin before dropping it); the pipeline must run once."""
+        from collective.blicca.footerblocks import footer
+
+        calls = []
+        real = footer.render_blocks
+        monkeypatch.setattr(
+            footer, "render_blocks", lambda *args: calls.append(args) or real(*args)
+        )
+        self.portal.footer = footer_value("once")
+        first = self._render(self.portal.somewhere)
+        second = self._render(self.portal.somewhere)
+        assert first == second
+        assert "once" in first
+        assert len(calls) == 1
+
+    def test_a_changed_footer_is_not_served_from_the_memo(self):
+        self.portal.footer = footer_value("first words")
+        assert "first words" in self._render(self.portal.somewhere)
+        self.portal.footer = footer_value("second words")
+        assert "second words" in self._render(self.portal.somewhere)

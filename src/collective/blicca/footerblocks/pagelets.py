@@ -20,8 +20,8 @@ from plone.pageletlayout.chrome import ChromePagelet
 from plone.pageletlayout.pagelets.head import StylesChromePagelet
 
 from collective.blicca.footerblocks.footer import footer_blocks_html
+from collective.blicca.footerblocks.footer import stylesheet_links
 from collective.blicca.footerblocks.interfaces import ICollectiveBliccaFooterblocksLayer
-from collective.blicca.footerblocks.viewlets import stylesheet_links
 
 
 class FooterBlocksChromePagelet(ChromePagelet):
