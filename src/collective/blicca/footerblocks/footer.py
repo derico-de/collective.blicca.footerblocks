@@ -28,7 +28,7 @@ behavior schema's *default* (``collective.volto.footer``'s slate "Edit"
 seed) for a never-set field, so ``getattr`` alone cannot tell an authored
 footer from the seed; the instance dict can. No footer up the chain, a
 never-authored one, or an empty container renders nothing: the element
-disappears rather than shipping an empty footer-band.
+disappears rather than shipping empty footer-blocks.
 """
 
 from Acquisition import aq_base
