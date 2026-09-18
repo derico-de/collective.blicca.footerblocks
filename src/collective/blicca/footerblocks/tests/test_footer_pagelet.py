@@ -120,6 +120,14 @@ class TestPageletPage(PageletPageBase):
         self.request["ACTUAL_URL"] = f"{self.portal.absolute_url()}/@@edit-footer"
         assert "element-footerblocks" not in self._page(self.portal, "@@edit-footer")
 
+    def test_the_footer_stays_off_the_blocks_canvas(self):
+        self.portal.footer = footer_value("footer words")
+        page = self.portal.somewhere
+        self.request["ACTUAL_URL"] = f"{page.absolute_url()}/@@aurora-edit"
+        html = self._page(page, "@@aurora-edit")
+        assert "pat-auroraeditor" in html
+        assert "element-footerblocks" not in html
+
 
 class TestStyles(PageletPageBase):
     """The overridden styles provider ships the blocks stylesheets."""

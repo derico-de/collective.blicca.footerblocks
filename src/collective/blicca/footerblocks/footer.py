@@ -43,6 +43,12 @@ from collective.volto.footer.behaviors.footer import IEditableFooterMarker
 #: The view name of the footer's own editing surface (editing.py).
 EDIT_SURFACE = "@@edit-footer"
 
+#: The Aurora edit surfaces the footer stays out of: its own, the page's
+#: blocks canvas and the metadata form behind the Content tab. The tab
+#: strip promises the same frame on every surface, so the footer is absent
+#: on all of them rather than appearing and vanishing as tabs are switched.
+EDIT_SURFACES = (EDIT_SURFACE, "@@aurora-edit", "@@edit-metadata")
+
 
 def footer_carrier(context):
     """Return the nearest ancestor that owns an editable footer."""
@@ -68,11 +74,11 @@ def authored_footer(carrier):
     return vars(aq_base(carrier)).get("footer") or {}
 
 
-def is_footer_editor(request):
-    """Whether ``request`` is the footer's own editing surface."""
+def is_edit_surface(request):
+    """Whether ``request`` renders one of the Aurora edit surfaces."""
     for key in ("ACTUAL_URL", "URL"):
-        url = request.get(key, "")
-        if url.rstrip("/").endswith("/" + EDIT_SURFACE):
+        url = request.get(key, "").rstrip("/")
+        if any(url.endswith("/" + name) for name in EDIT_SURFACES):
             return True
     return False
 
@@ -80,15 +86,15 @@ def is_footer_editor(request):
 def footer_blocks_html(context, request):
     """The inherited footer blocks of ``context``, rendered — or ``""``.
 
-    Empty on the footer's own editing surface (the published footer stays
-    out of the editor), with no carrier up the chain, and for an unauthored
-    or empty footer.
+    Empty on every Aurora edit surface (the published footer stays out of
+    the editor, whether the footer or the page is being edited), with no
+    carrier up the chain, and for an unauthored or empty footer.
 
     Rendered once per request and footer: on a plone.pageletlayout page the
     stock viewlet is updated by the bridged manager before the bridge drops
     it, so the element and its twin both ask — the second gets the memo.
     """
-    if is_footer_editor(request):
+    if is_edit_surface(request):
         return ""
     carrier = footer_carrier(context)
     footer = authored_footer(carrier)

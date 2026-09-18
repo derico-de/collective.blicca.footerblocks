@@ -187,9 +187,11 @@ moves every child of `#portal-footer-wrapper` that is not one of its own
 `.element-footerblocks` into place with a rule of its own.
 
 The element is emitted only when the footer has blocks, and it is suppressed
-on the `@@edit-footer` surface so the content being edited is not repeated
-below the editor. Visitors to a site without an authored footer get no
-footer-blocks element at all.
+on every Aurora edit surface — `@@edit-footer`, so the content being edited
+is not repeated below the editor, and the page's `@@aurora-edit` canvas and
+`@@edit-metadata` form, so the frame around the editor stays the same
+whichever tab is showing. Visitors to a site without an authored footer get
+no footer-blocks element at all.
 
 `.aurora-blocks-view` is the public scope root of the shared blocks CSS and
 of every block add-on's scoped stylesheet, so a theme styles footer blocks

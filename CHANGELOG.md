@@ -2,6 +2,11 @@
 
 ## 1.0.0a1 (unreleased)
 
+- The footer stays out of the page's Aurora edit surfaces too: `@@aurora-edit`
+  and `@@edit-metadata` render no footer-blocks element, as `@@edit-footer`
+  already did. `footer.is_footer_editor()` became `is_edit_surface()`, checking
+  the request URL against `footer.EDIT_SURFACES`.
+
 - The footer renders on stock Plone 6 — Barceloneta, or any Diazo theme —
   and `plone.pageletlayout` becomes an optional frame instead of a
   requirement. The rendering logic moved into the frame-neutral

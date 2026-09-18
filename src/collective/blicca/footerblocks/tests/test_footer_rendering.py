@@ -69,6 +69,20 @@ class TestRendering:
         self.request["ACTUAL_URL"] = f"{self.portal.absolute_url()}/@@edit-footer"
         assert self._render(self.portal) == ""
 
+    @pytest.mark.parametrize("surface", ["@@aurora-edit", "@@edit-metadata"])
+    def test_the_footer_stays_out_of_the_page_edit_surfaces(self, surface):
+        """The blocks canvas and the metadata form share one frame with the
+        footer surface; the published footer is absent on all of them."""
+        self.portal.footer = footer_value("footer words")
+        page = self.portal.somewhere
+        self.request["ACTUAL_URL"] = f"{page.absolute_url()}/{surface}"
+        assert self._render(page) == ""
+
+    def test_a_page_named_like_a_surface_keeps_its_footer(self):
+        self.portal.footer = footer_value("footer words")
+        self.request["ACTUAL_URL"] = f"{self.portal.absolute_url()}/aurora-edit"
+        assert "footer words" in self._render(self.portal.somewhere)
+
     def test_block_addon_nodes_dispatch_to_their_renderer(self):
         """ "Our blocks" work in the footer: a ``ploneBlock`` node inside the
         somersault tree dispatches to its ``aurora-block-<@type>`` view,
