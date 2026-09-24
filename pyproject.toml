@@ -28,7 +28,6 @@ dependencies = [
     "collective.volto.footer",
     "plone.blicca.auroraeditor>=1.0.0a2",
     "plone.rest",
-    "setuptools<81",
 ]
 
 [project.optional-dependencies]
