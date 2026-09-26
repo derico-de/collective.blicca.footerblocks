@@ -1,8 +1,8 @@
-"""The plone.pageletlayout frame: the footer element (pagelets.py).
+"""The plone.pageletlayout frame.
 
 On the pageletlayout fixture the site has pageletlayout's profile applied,
-so a request carrying its layer renders the whole-body layout — with the
-footer as a layout element, and the stock twin skipped by the bridge.
+so a request carrying its layer renders the slot layout, whose footer
+landmark renders plone.portalfooter — and with it the stock footer viewlet.
 """
 
 import pytest
@@ -18,30 +18,27 @@ from zope.interface import alsoProvides
 from zope.interface import noLongerProvides
 
 from collective.blicca.footerblocks.interfaces import ICollectiveBliccaFooterblocksLayer
-from collective.blicca.footerblocks.pagelets import FooterBlocksChromePagelet
 from collective.blicca.footerblocks.pagelets import FooterStylesChromePagelet
 from collective.blicca.footerblocks.tests.test_footer_rendering import footer_value
 
 
 VIEWLET = "collective.blicca.footerblocks.footerblocks"
-MANAGER = "plone.pageletlayout.layout"
+MANAGER = "plone.portalfooter"
 ELEMENT = '<div class="element-footerblocks">'
 BLOCKS_CSS = "++resource++plone.blicca.auroraeditor.blocks.css"
 
 
 class TestPlacement:
-    """The stored layout order, not the registration."""
+    """The stock viewlet's place in plone.portalfooter, the slot the
+    pageletlayout frame renders in its footer landmark."""
 
     @pytest.fixture(autouse=True)
     def _setup(self, pageletlayout_integration):
         storage = getUtility(IViewletSettingsStorage)
         self.order = list(storage.getOrder(MANAGER, "Plone Default"))
 
-    def test_the_element_is_in_the_layout_order(self):
-        assert VIEWLET in self.order
-
-    def test_it_comes_after_the_page_body(self):
-        assert self.order.index(VIEWLET) > self.order.index("plone.pageletlayout.body")
+    def test_it_comes_before_the_footer_portlets(self):
+        assert self.order.index(VIEWLET) < self.order.index("plone.footer")
 
     def test_it_comes_before_every_footer_row(self):
         for row in (
@@ -49,7 +46,7 @@ class TestPlacement:
             "plone.pageletlayout.colophon",
             "plone.pageletlayout.siteactions",
         ):
-            assert self.order.index(VIEWLET) < self.order.index(row), row
+            assert self.order.index(VIEWLET) < self.order.index(row)
 
 
 class PageletPageBase:
@@ -75,29 +72,11 @@ class PageletPageBase:
         return provider
 
 
-class TestElement(PageletPageBase):
-    def test_it_is_registered_under_the_name_the_layout_asks_for(self):
-        self.portal.footer = footer_value("registered words")
-        provider = self._provider(VIEWLET)
-        assert isinstance(provider, FooterBlocksChromePagelet)
-        assert "element-footerblocks" in provider.render()
-
-    def test_the_pagelet_renders_inside_the_scope_root(self):
-        self.portal.footer = footer_value("footer words")
-        markup = self._provider(VIEWLET).render()
-        assert ELEMENT in markup
-        assert "aurora-blocks-view" in markup
-        assert "footer words" in markup
-
-    def test_an_unauthored_footer_renders_no_element(self):
-        assert "element-footerblocks" not in self._provider(VIEWLET).render()
-
-
 class TestPageletPage(PageletPageBase):
     def test_the_frame_is_the_pagelet_layout(self):
         html = self._page()
-        assert "element-portalfooter" in html
-        assert 'id="portal-footer-wrapper"' not in html
+        assert 'class="plone-layout"' in html
+        assert "visual-portal-wrapper" not in html
 
     def test_the_footer_renders_exactly_once(self):
         self.portal.footer = footer_value("layout words")
@@ -105,15 +84,20 @@ class TestPageletPage(PageletPageBase):
         assert html.count(ELEMENT) == 1
         assert html.count("layout words") == 1
 
-    def test_the_element_renders_and_the_bridge_skips_the_twin(self):
-        # The one occurrence is the layout element, before the footer rows
-        # — not the stock viewlet riding the portalfooter bridge.
+    def test_it_renders_in_the_footer_landmark(self):
         self.portal.footer = footer_value("layout words")
         html = self._page()
-        bridge = html.index("element-portalfooter")
-        bridge_end = html.index("element-", bridge + 1)
-        assert "element-footerblocks" not in html[bridge:bridge_end]
-        assert html.index(ELEMENT) < html.index("element-copyright")
+        footer = html.index('id="portal-footer-wrapper"')
+        assert footer < html.index(ELEMENT) < html.index("element-copyright")
+
+    def test_the_viewlet_renders_inside_the_scope_root(self):
+        self.portal.footer = footer_value("footer words")
+        html = self._page()
+        element = html[html.index(ELEMENT):]
+        assert element.index("aurora-blocks-view") < element.index("footer words")
+
+    def test_an_unauthored_footer_renders_no_element(self):
+        assert "element-footerblocks" not in self._page()
 
     def test_the_footer_stays_off_its_editing_surface(self):
         self.portal.footer = footer_value("words being edited")

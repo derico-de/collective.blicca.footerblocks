@@ -7,11 +7,10 @@ footer portlets), by the ``plone.portalfooter`` order in
 profiles/default/viewlets.xml. The blocks stylesheets reach ``<head>``
 through ``IHtmlHead``.
 
-Both viewlets are also the twin of a plone.pageletlayout registration
-(pagelets.py): on a pagelet page the layout renders the element under the
-same name and pageletlayout's bridge skips the stock twin, and its head is
-composed from wrapped renderers, so ``plone.htmlhead`` is never rendered
-there at all. Nothing doubles up on either frame.
+plone.pageletlayout's slot layout renders ``IPortalFooter`` too, so the
+footer viewlet serves both frames. Its head is composed from wrapped
+renderers and never renders ``plone.htmlhead``; the styles reach it through
+the overridden styles provider (pagelets.py, overrides.zcml).
 """
 
 from plone.app.layout.viewlets import ViewletBase

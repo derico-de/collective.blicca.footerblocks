@@ -2,6 +2,12 @@
 
 ## 1.0.0a1 (unreleased)
 
+- The footer is the stock `IPortalFooter` viewlet on plone.pageletlayout
+  pages too: the slot layout renders that manager in its footer landmark, so
+  the chrome-pagelet twin and its entry in the retired whole-body layout
+  order are gone. Upgrade step 1003 drops the stale order entry. The head
+  styles override stays.
+
 - The footer stays out of the page's Aurora edit surfaces too: `@@aurora-edit`
   and `@@edit-metadata` render no footer-blocks element, as `@@edit-footer`
   already did. `footer.is_footer_editor()` became `is_edit_surface()`, checking

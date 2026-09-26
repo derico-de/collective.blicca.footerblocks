@@ -49,8 +49,9 @@ and mounts the Aurora editor on it.
 
 All of these are declared as dependencies and pulled in on install.
 
-`plone.pageletlayout` is optional: when it is importable, this package also
-registers its footer as a layout element and hooks into the layout's head
+`plone.pageletlayout` is optional: its slot layout renders `IPortalFooter`,
+so the footer viewlet serves it unchanged, and when it is importable this
+package also hooks the blocks stylesheets into the layout's head
 (the `pageletlayout` extra declares the pairing, the ZCML condition does
 the work). `plone.app.multilingual` is not a dependency either; it is only
 needed for the opt-in per-language footers profile, on a site that already
@@ -208,13 +209,11 @@ through `.element-footerblocks`.
   reads its persisted footer value, and renders the blocks through the same
   pipeline that renders a page body. Only a persisted value counts; the
   behavior's schema default is ignored, which is what keeps an unauthored
-  footer invisible. Two registrations share that function and one template,
-  under one name (`collective.blicca.footerblocks.footerblocks`): a viewlet
-  in Plone's `IPortalFooter` manager, always, and — when
-  `plone.pageletlayout` is importable — a chrome pagelet in its whole-body
-  layout manager. On a pageletlayout page the layout renders the element
-  and pageletlayout's stock-manager bridge skips the same-named stock
-  viewlet, so the footer appears once on either frame.
+  footer invisible. One viewlet renders it
+  (`collective.blicca.footerblocks.footerblocks`, in Plone's `IPortalFooter`
+  manager, before the footer portlets), on stock Plone and in
+  plone.pageletlayout's slot layout, whose footer landmark renders the same
+  manager.
 - **Editing.** An ``IEditSurfaceTab`` subscriber resolves the nearest footer
   carrier and puts a **Footer** tab in the Aurora editor's tab strip when the
   current user may modify that carrier. The `@@edit-footer` page mounts the Aurora editor on its footer

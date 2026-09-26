@@ -93,6 +93,7 @@ constraint-dependencies = ["Products.CMFPlone==6.2.1"]
 # sources, so this governs this package's lock and nothing else.
 "plone.blicca.auroraeditor" = { path = "../plone.blicca.auroraeditor", editable = true }
 "plone.pageletlayout" = { path = "../plone.pageletlayout", editable = true }
+"plone.app.viewletmanager" = { path = "../plone.app.viewletmanager", editable = true }
 
 [tool.pytest.ini_options]
 testpaths = ["src/collective/blicca/footerblocks/tests"]

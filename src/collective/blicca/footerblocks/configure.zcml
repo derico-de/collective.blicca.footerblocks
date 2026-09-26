@@ -34,11 +34,6 @@
       permission="zope2.View"
       />
 
-  <!-- The plone.pageletlayout frame, when that package is importable: the
-       layout element under the same name (the bridge then skips the stock
-       twin). The head styles override is overrides.zcml. -->
-  <include file="pageletlayout.zcml" zcml:condition="installed plone.pageletlayout" />
-
   <!-- The footer editing surface (auroraeditor ADR 0015): the edit page,
        the plone.rest save target the mount contract's contentUrl points
        at, and the browser-GET redirect at the same name (the host pattern

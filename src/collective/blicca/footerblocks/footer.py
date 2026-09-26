@@ -90,9 +90,8 @@ def footer_blocks_html(context, request):
     the editor, whether the footer or the page is being edited), with no
     carrier up the chain, and for an unauthored or empty footer.
 
-    Rendered once per request and footer: on a plone.pageletlayout page the
-    stock viewlet is updated by the bridged manager before the bridge drops
-    it, so the element and its twin both ask — the second gets the memo.
+    Rendered once per request and footer: a page that asks twice (a manager
+    updated for a management view and for the page) gets the memo.
     """
     if is_edit_surface(request):
         return ""

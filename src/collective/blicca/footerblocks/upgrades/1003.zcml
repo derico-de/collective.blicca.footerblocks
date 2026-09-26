@@ -1,0 +1,19 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    i18n_domain="collective.blicca.footerblocks">
+
+  <genericsetup:upgradeSteps
+      source="1002"
+      destination="1003"
+      profile="collective.blicca.footerblocks:default">
+
+    <genericsetup:upgradeStep
+        title="Drop the footer element twin of the retired whole-body layout"
+        description="Remove the footer blocks from the stored order of plone.pageletlayout.layout, a manager nothing renders any more"
+        handler=".v1003.upgrade"
+        />
+
+  </genericsetup:upgradeSteps>
+
+</configure>

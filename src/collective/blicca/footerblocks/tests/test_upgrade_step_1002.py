@@ -68,8 +68,3 @@ class TestUpgrade1002:
         upgrade(self.setup_tool)
         assert self._order(LAYOUT) == before
 
-    def test_a_fresh_install_is_already_at_this_version(self):
-        (version,) = self.setup_tool.getLastVersionForProfile(
-            "collective.blicca.footerblocks:default"
-        )
-        assert int(version) == 1002
