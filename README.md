@@ -41,7 +41,7 @@ and mounts the Aurora editor on it.
 
 ## Requirements
 
-- Plone 6.0 or later — stock Plone works out of the box, with Barceloneta
+- Plone 6.2 or later — stock Plone works out of the box, with Barceloneta
   or any Diazo theme
 - `plone.blicca.auroraeditor` 1.0.0a2 or later
 - `collective.volto.footer`, for the storage behavior

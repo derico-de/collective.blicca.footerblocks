@@ -2,6 +2,16 @@
 
 ## 1.0.0a1 (unreleased)
 
+- `overrides.zcml` loads on a site without plone.pageletlayout through
+  `xmlconfig.file` too, the path plone.app.testing's `loadZCML` takes: the
+  `installed plone.pageletlayout` condition moved from the root element to a
+  nested `configure`. A false condition on the root element crashes
+  zope.configuration's parser. A site was never affected; plugin overrides
+  are loaded through `includeOverrides`, which is fine either way.
+
+- Require Plone 6.2: that is what plone.blicca.auroraeditor targets and what
+  the lock resolves.
+
 - The footer is the stock `IPortalFooter` viewlet on plone.pageletlayout
   pages too: the slot layout renders that manager in its footer landmark, so
   the chrome-pagelet twin and its entry in the retired whole-body layout

@@ -14,6 +14,8 @@ having the *shorter* include path, so a base at the top level could never
 be overridden by anything.
 """
 
+import sys
+
 import plone.pageletlayout
 import pytest
 from plone.pageletlayout.interfaces import IPlonePageletlayoutLayer
@@ -83,3 +85,20 @@ class TestOverride:
     def test_the_fixture_holds_the_override(self):
         assert issubclass(registered_styles_class(), FooterStylesChromePagelet)
         assert plone.pageletlayout  # the frame is importable, so the file loads
+
+
+class TestWithoutPageletlayout:
+    """A stock site: the frame is not importable and the file is a no-op.
+
+    Loaded through ``xmlconfig.file`` on a machine of its own, the path
+    plone.app.testing's ``loadZCML`` takes. A false condition on the *root*
+    element crashes zope.configuration's parser there, so the condition
+    sits on a nested ``configure``.
+    """
+
+    def test_the_file_loads_and_registers_nothing(self, monkeypatch):
+        monkeypatch.setitem(sys.modules, "plone.pageletlayout", None)
+        context = xmlconfig.ConfigurationMachine()
+        xmlconfig.registerCommonDirectives(context)
+        xmlconfig.file("overrides.zcml", package=collective.blicca.footerblocks, context=context)
+        assert context.actions == []

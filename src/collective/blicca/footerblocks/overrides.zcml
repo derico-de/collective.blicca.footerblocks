@@ -2,20 +2,27 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:plone="http://namespaces.plone.org/plone"
     xmlns:zcml="http://namespaces.zope.org/zcml"
-    i18n_domain="collective.blicca.footerblocks"
-    zcml:condition="installed plone.pageletlayout">
+    i18n_domain="collective.blicca.footerblocks">
 
-  <include package="plone.pageletlayout" file="meta.zcml" />
+  <!-- The condition sits on a nested configure, not on the root element:
+       a root element whose condition is false crashes zope.configuration's
+       parser when the file is loaded through xmlconfig.file (what
+       plone.app.testing's loadZCML does on a stock site). -->
+  <configure zcml:condition="installed plone.pageletlayout">
 
-  <!-- The head styles provider of every pageletlayout page, replaced: same
-       name, same layer as the base stanza in plone.pageletlayout's
-       chrome.zcml, so this is an override rather than a conflict. The
-       class appends the blocks stylesheets only on a request carrying
-       this add-on's layer. -->
-  <plone:chromepagelet
-      name="plone.pageletlayout.styles"
-      class=".pagelets.FooterStylesChromePagelet"
-      layer="plone.pageletlayout.interfaces.IPlonePageletlayoutLayer"
-      />
+    <include package="plone.pageletlayout" file="meta.zcml" />
+
+    <!-- The head styles provider of every pageletlayout page, replaced: same
+         name, same layer as the base stanza in plone.pageletlayout's
+         chrome.zcml, so this is an override rather than a conflict. The
+         class appends the blocks stylesheets only on a request carrying
+         this add-on's layer. -->
+    <plone:chromepagelet
+        name="plone.pageletlayout.styles"
+        class=".pagelets.FooterStylesChromePagelet"
+        layer="plone.pageletlayout.interfaces.IPlonePageletlayoutLayer"
+        />
+
+  </configure>
 
 </configure>
