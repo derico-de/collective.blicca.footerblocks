@@ -51,6 +51,14 @@ jobs:
           repository: MrTango/plone.pageletlayout
           path: plone.pageletlayout
 
+      # pageletlayout needs the unreleased IAdditionalViewlets API; the
+      # lockfile resolves this package from the sibling source checkout.
+      - uses: actions/checkout@v5
+        with:
+          repository: plone/plone.app.viewletmanager
+          ref: additional-viewlets
+          path: plone.app.viewletmanager
+
       - name: Set up uv and Python ${{ matrix.python-version }}
         uses: astral-sh/setup-uv@v10.0.1
         with:
