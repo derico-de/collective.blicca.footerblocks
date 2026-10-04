@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0a1 (unreleased)
+## 1.0.0a1 (2026-10-04)
 
 - `overrides.zcml` loads on a site without plone.pageletlayout through
   `xmlconfig.file` too, the path plone.app.testing's `loadZCML` takes: the
