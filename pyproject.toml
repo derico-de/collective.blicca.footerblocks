@@ -1,6 +1,6 @@
 [project]
 name = "collective.blicca.footerblocks"
-version = "1.0.0a1"
+version = "1.0.0a2.dev0"
 description = "Blicca rendering of editable footer blocks (collective.volto.footer) on stock Plone and plone.pageletlayout sites"
 readme = "README.md"
 requires-python = ">=3.10"
