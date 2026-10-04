@@ -1,6 +1,6 @@
 # collective.blicca.footerblocks
 
-An **editable site footer** for classic Plone 6, built from Aurora blocks.
+An **editable site footer** for Plone 6 Blicca, built from Aurora blocks.
 
 Editors compose the footer in the Aurora block editor, the same way they
 compose a page: text, links, lists, and any installed Aurora block add-on.
@@ -11,8 +11,8 @@ point.
 
 The footer content is stored in the `footer` field that
 [collective.volto.footer](https://github.com/collective/collective.volto.footer)
-defines, so a Volto frontend and a classic Plone site can share one footer.
-This package is the classic-Plone half: it renders that field through
+defines.
+This package is the Blicca-Plone half: it renders that field through
 [plone.blicca.auroraeditor](https://github.com/derico-de/plone.blicca.auroraeditor)
 and mounts the Aurora editor on it.
 
@@ -21,18 +21,12 @@ and mounts the Aurora editor on it.
 - **Blocks in the footer.** Paragraphs, links, lists, and every Aurora block
   add-on installed on the site, for example an actions block for the site
   actions or a promo block for a closing call to action.
-- **A tab in the editor.** People allowed to edit the footer's carrier get a
-  **Footer** tab on top of the Aurora edit area, after **Blocks** and
-  **Content**. It opens the editor on the inherited footer; full-bleed block
-  widths are allowed because a footer is a full-width band.
 - **Inherited down the tree.** The footer of the nearest ancestor that has
   the editable-footer behavior is shown. Enable the behavior on a folder type
   to give a section its own footer.
 - **One footer per language.** An opt-in profile makes every
   plone.app.multilingual language root folder a footer carrier, so `/de` and
   `/en` each edit and render their own.
-- **Shared with Volto.** The storage is `collective.volto.footer`'s field, so
-  the footer is readable by Volto's `@inherit` expander as well.
 - **Styled like page content.** The footer's blocks are wrapped in the same
   scope root as a page body, so the shared blocks stylesheet and every block
   add-on's stylesheet apply unchanged.
@@ -49,13 +43,6 @@ and mounts the Aurora editor on it.
 
 All of these are declared as dependencies and pulled in on install.
 
-`plone.pageletlayout` is optional: its slot layout renders `IPortalFooter`,
-so the footer viewlet serves it unchanged, and when it is importable this
-package also hooks the blocks stylesheets into the layout's head
-(the `pageletlayout` extra declares the pairing, the ZCML condition does
-the work). `plone.app.multilingual` is not a dependency either; it is only
-needed for the opt-in per-language footers profile, on a site that already
-has it.
 
 ## Installation
 
@@ -82,10 +69,6 @@ profile. Installing it:
 - makes every page load the blocks stylesheets, so footer blocks are styled
   on pages that are not block pages themselves.
 
-Installing `plone.pageletlayout` *after* this package restates the layout
-order and pushes the footer element to the front of the page; re-import
-this package's `viewlets` step (portal_setup → Import) to put it back above
-the footer rows.
 
 ## Editing the footer
 
@@ -130,12 +113,9 @@ not apply it.
 
 Extra profiles are not listed in the Add-ons control panel. Apply this one
 from `portal_setup` → **Import**, choosing *Collective Blicca Footerblocks:
-per-language footers* as the profile. That is the whole operation — no script
-to run afterwards.
+per-language footers* as the profile.
 
-It has to be, because of the nearest-carrier rule: a language folder that
-carries the behavior but has never had its footer authored shows **no**
-footer, it does not fall back to the site root's. So applying the profile
+Applying the profile
 also copies the inherited footer into every language that has none, in the
 same transaction, and the published site is unchanged when it finishes. Each
 language then owns its copy and is edited on its own; a site that would
@@ -149,10 +129,6 @@ from collective.blicca.footerblocks.multilingual import seed_language_footers
 seed_language_footers(portal)
 ```
 
-Sites that applied this profile while it was at version 1000 — when it
-imported the type and nothing else — get the seeding from the 1000 → 1001
-upgrade step instead, under `portal_setup` → **Upgrades**.
-
 To give a section its own footer, enable the
 `collective.volto.footer.editable` behavior on that section's content type
 in the Dexterity control panel, then edit the footer on that object. Pages
@@ -161,10 +137,6 @@ ancestor that carries the behavior but has never had its footer authored
 shows no footer, it does not fall back to the footer above it. This mirrors
 how Volto's `@inherit` expander resolves the field.
 
-Footers created in Volto with `slate` text blocks are converted to Aurora
-text when opened in the editor. They are not rendered before that: this
-package renders Aurora blocks only and has no renderer for Volto's `slate`
-block.
 
 ## Rendered markup
 
@@ -222,13 +194,7 @@ through `.element-footerblocks`.
   redirects to the page the author came from (the `origin` parameter the tab
   sends along), or to the carrier, after save or cancel.
 - **Stylesheets.** On stock Plone an `IHtmlHead` viewlet emits the blocks
-  stylesheet links. On a `plone.pageletlayout` site `overrides.zcml`
-  replaces the `plone.pageletlayout.styles` head provider with a subclass
-  that appends the same links after the resource registry output, only on
-  requests carrying this package's browser layer (pageletlayout never
-  renders `plone.htmlhead`, so nothing doubles up). On block pages the same
-  links are then present twice with identical URLs, which the browser
-  fetches once.
+  stylesheet links.
 
 ## Development
 
