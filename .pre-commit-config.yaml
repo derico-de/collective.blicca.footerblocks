@@ -1,3 +1,5 @@
+# Scaffold metadata must stay as its generator wrote it.
+exclude: '^(\.copier-answers.*\.ya?ml$|src/.*/upgrades/[^/]+/metadata\.txt$)'
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
