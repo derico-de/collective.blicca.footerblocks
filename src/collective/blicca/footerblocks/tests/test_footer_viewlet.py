@@ -48,6 +48,7 @@ class StockPageBase:
         alsoProvides(self.request, ICollectiveBliccaFooterblocksLayer)
         alsoProvides(self.request, IPloneBliccaAuroraeditorLayer)
         setRoles(self.portal, TEST_USER_ID, ["Manager"])
+        self.portal.portal_types.Document.behaviors += ("volto.blocks",)
         self.portal.invokeFactory("Document", "somewhere", title="Somewhere")
 
     def _page(self, context=None, name="document_view"):
