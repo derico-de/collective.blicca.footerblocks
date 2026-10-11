@@ -1,4 +1,5 @@
 """Drop the footer element twin of the retired whole-body layout."""
+
 import logging
 
 from plone.app.viewletmanager.interfaces import IViewletSettingsStorage

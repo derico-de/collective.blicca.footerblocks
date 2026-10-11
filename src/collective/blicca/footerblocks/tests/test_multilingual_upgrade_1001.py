@@ -30,7 +30,6 @@ PROFILE = "collective.blicca.footerblocks:multilingual"
 
 
 class TestMultilingualUpgrade1001:
-
     @pytest.fixture(autouse=True)
     def _setup(self, integration):
         self.portal = integration["portal"]
@@ -60,9 +59,7 @@ class TestMultilingualUpgrade1001:
         flat = []
         for step in steps:
             flat.extend(step if isinstance(step, list) else [step])
-        assert any(
-            step["ssource"] == "1000" and step["sdest"] == "1001" for step in flat
-        )
+        assert any(step["ssource"] == "1000" and step["sdest"] == "1001" for step in flat)
 
     def test_a_fresh_apply_is_already_at_this_version(self):
         (version,) = self.setup_tool.getLastVersionForProfile(PROFILE)
@@ -146,6 +143,4 @@ class TestASiteThatNeverAppliedTheProfile:
     def test_the_default_profile_has_nothing_pending_either(self):
         """This pin changed no default-profile XML, so the Add-ons control
         panel offers no upgrade for the add-on."""
-        assert self.setup_tool.listUpgrades(
-            "collective.blicca.footerblocks:default"
-        ) == []
+        assert self.setup_tool.listUpgrades("collective.blicca.footerblocks:default") == []

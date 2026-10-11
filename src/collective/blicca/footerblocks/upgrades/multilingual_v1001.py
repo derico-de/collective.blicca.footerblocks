@@ -1,4 +1,5 @@
 """Seed the per-language footers (``multilingual`` profile, 1000 -> 1001)."""
+
 import logging
 
 from collective.blicca.footerblocks.multilingual import seed_language_footers_handler

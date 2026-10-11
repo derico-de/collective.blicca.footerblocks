@@ -40,17 +40,13 @@ class TestFooterTab:
     def _tab(self, context=None):
         found = [
             tab
-            for tab in subscribers(
-                (context or self.doc, self.request), IEditSurfaceTab
-            )
+            for tab in subscribers((context or self.doc, self.request), IEditSurfaceTab)
             if tab.id == "footer"
         ]
         return found[0] if found else None
 
     def _tabs(self, context=None):
-        view = getMultiAdapter(
-            (context or self.doc, self.request), name="aurora-edit"
-        )
+        view = getMultiAdapter((context or self.doc, self.request), name="aurora-edit")
         return view.edit_tabs()
 
     def test_the_tab_points_at_the_inherited_site_footer(self):
@@ -58,10 +54,7 @@ class TestFooterTab:
         this page's strip and return here afterwards."""
         tab = self._tab()
         assert tab.available is True
-        assert (
-            tab.url
-            == f"{self.portal.absolute_url()}/@@edit-footer?origin=/plone/test-document"
-        )
+        assert tab.url == f"{self.portal.absolute_url()}/@@edit-footer?origin=/plone/test-document"
 
     def test_it_sits_between_blocks_and_content(self):
         """The two block surfaces stay side by side; the classic metadata
@@ -78,9 +71,7 @@ class TestFooterTab:
     def test_the_footer_surface_lights_its_own_tab(self):
         view = getMultiAdapter((self.portal, self.request), name="edit-footer")
         assert view.surface_id == "footer"
-        assert [tab["id"] for tab in view.edit_tabs() if tab["active"]] == [
-            "footer"
-        ]
+        assert [tab["id"] for tab in view.edit_tabs() if tab["active"]] == ["footer"]
 
     def test_the_footer_surface_keeps_the_pages_strip(self):
         """Reached from a page, the surface shows that page's tabs: Blocks
@@ -109,9 +100,7 @@ class TestFooterTab:
             container=self.portal, type="Folder", id="section", title="Section"
         )
         alsoProvides(section, IEditableFooterMarker)
-        page = api.content.create(
-            container=section, type="Document", id="page", title="Page"
-        )
+        page = api.content.create(container=section, type="Document", id="page", title="Page")
         assert (
             self._tab(page).url
             == f"{section.absolute_url()}/@@edit-footer?origin=/plone/section/page"

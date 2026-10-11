@@ -25,9 +25,7 @@ from plone.blicca.auroraeditor import SOMERSAULT_BLOCK_ID
 from plone.blicca.auroraeditor import SOMERSAULT_BLOCK_TYPE
 
 
-BROWSER_ACCEPT = (
-    "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-)
+BROWSER_ACCEPT = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
 # The test server is in-process; a request that hangs is a bug, not a slow
 # network, so fail fast rather than wedging the suite.
 TIMEOUT = 30
@@ -68,9 +66,7 @@ class TestFooterSurfaceOverHttp:
         assert response.status_code == 200
         # Chameleon picks the attribute delimiter to suit the JSON, so
         # match whichever quote it chose.
-        match = re.search(
-            r"data-pat-auroraeditor=([\"'])(.*?)\1", response.text, re.S
-        )
+        match = re.search(r"data-pat-auroraeditor=([\"'])(.*?)\1", response.text, re.S)
         assert match, "the edit page did not inject the mount config"
         return json.loads(html.unescape(match.group(2)))
 
@@ -115,9 +111,7 @@ class TestFooterSurfaceOverHttp:
             json=save_body("published footer words"),
         )
         transaction.begin()
-        api.content.create(
-            container=self.portal, type="Document", id="a-page", title="A page"
-        )
+        api.content.create(container=self.portal, type="Document", id="a-page", title="A page")
         transaction.commit()
 
         page = requests.get(
@@ -178,9 +172,7 @@ class TestFooterSurfaceOverHttp:
         )
         assert response.status_code == 200
         returned = response.json()
-        url = returned["blocks"][SOMERSAULT_BLOCK_ID]["value"][0]["children"][0][
-            "data"
-        ]["url"]
+        url = returned["blocks"][SOMERSAULT_BLOCK_ID]["value"][0]["children"][0]["data"]["url"]
         # Stored as resolveuid, handed back resolved.
         assert "resolveuid" not in url
         assert url.endswith("/imprint")

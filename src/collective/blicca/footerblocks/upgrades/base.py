@@ -1,4 +1,5 @@
 """Shared upgrade step utilities for collective.blicca.footerblocks."""
+
 from plone.app.upgrade.utils import loadMigrationProfile
 
 

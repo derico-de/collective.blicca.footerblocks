@@ -1,4 +1,5 @@
 """Remove the footer edit object action."""
+
 import logging
 
 

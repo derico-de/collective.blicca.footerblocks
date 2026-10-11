@@ -67,4 +67,3 @@ class TestUpgrade1002:
         before = self._order(LAYOUT)
         upgrade(self.setup_tool)
         assert self._order(LAYOUT) == before
-

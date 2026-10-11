@@ -97,11 +97,11 @@ class TestWithoutTheProfile:
             getMultiAdapter((self.folders[0], self.request), name="edit-footer")
 
     def _footer_tab(self, context):
-        (tab,) = [
+        (tab,) = (
             tab
             for tab in subscribers((context, self.request), IEditSurfaceTab)
             if tab.id == "footer"
-        ]
+        )
         return tab
 
 
@@ -140,9 +140,7 @@ class TestMultilingualProfile:
             view = getMultiAdapter((folder, self.request), name="edit-footer")
             view()
             assert view.field_name == "footer"
-            assert view.config()["contentUrl"] == (
-                f"{folder.absolute_url()}/@footerblocks"
-            )
+            assert view.config()["contentUrl"] == (f"{folder.absolute_url()}/@footerblocks")
 
     def test_the_save_target_redirect_is_available_too(self):
         folder = self.folders[0]
@@ -151,15 +149,11 @@ class TestMultilingualProfile:
 
     def test_the_footer_tab_of_a_page_points_at_its_language_folder(self):
         folder = self.folders[0]
-        page = api.content.create(
-            container=folder, type="Document", id="page", title="Page"
-        )
+        page = api.content.create(container=folder, type="Document", id="page", title="Page")
         alsoProvides(page, IBlocks)
-        (tab,) = [
-            tab
-            for tab in subscribers((page, self.request), IEditSurfaceTab)
-            if tab.id == "footer"
-        ]
+        (tab,) = (
+            tab for tab in subscribers((page, self.request), IEditSurfaceTab) if tab.id == "footer"
+        )
         assert tab.available is True
         origin = "/".join(page.getPhysicalPath())
         assert tab.url == f"{folder.absolute_url()}/@@edit-footer?origin={origin}"

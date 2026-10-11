@@ -38,7 +38,6 @@ def hidden_profiles():
 
 
 class TestUpgrade1001:
-
     @pytest.fixture(autouse=True)
     def _setup(self, integration):
         self.portal = integration["portal"]
@@ -51,9 +50,7 @@ class TestUpgrade1001:
         action = Action(
             ACTION,
             title="Edit footer",
-            url_expr=(
-                "python:object.restrictedTraverse('@@footer-edit-action')()"
-            ),
+            url_expr=("python:object.restrictedTraverse('@@footer-edit-action')()"),
             available_expr=(
                 "python:object is not None and "
                 "bool(object.restrictedTraverse('@@footer-edit-action')())"
@@ -71,10 +68,7 @@ class TestUpgrade1001:
         flat = []
         for step in steps:
             flat.extend(step if isinstance(step, list) else [step])
-        assert any(
-            step["ssource"] == "1000" and step["sdest"] == "1001"
-            for step in flat
-        )
+        assert any(step["ssource"] == "1000" and step["sdest"] == "1001" for step in flat)
 
     def test_upgrade_profile_is_hidden(self):
         assert PROFILE in hidden_profiles()

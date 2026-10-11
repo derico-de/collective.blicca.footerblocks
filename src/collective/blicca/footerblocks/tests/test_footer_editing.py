@@ -69,17 +69,14 @@ class TestEditFooterView(EditingBase):
         assert config["unlockUrl"] == f"{self.portal.absolute_url()}/@lock"
 
     def test_the_save_url_remembers_the_page_the_author_came_from(self):
-        page = api.content.create(
-            container=self.portal, type="Document", id="page", title="Page"
-        )
+        page = api.content.create(container=self.portal, type="Document", id="page", title="Page")
         self.request.form["origin"] = "/plone/page"
         try:
             config = self._called_view().config()
         finally:
             del self.request.form["origin"]
         assert (
-            config["contentUrl"]
-            == f"{self.portal.absolute_url()}/@footerblocks?origin=/plone/page"
+            config["contentUrl"] == f"{self.portal.absolute_url()}/@footerblocks?origin=/plone/page"
         )
         assert config["unlockUrl"] == f"{self.portal.absolute_url()}/@lock"
         assert page.absolute_url() not in config["unlockUrl"]
@@ -116,9 +113,9 @@ class TestEditFooterView(EditingBase):
         assert 'aria-current="page"' in markup
 
     def test_authored_footer_feeds_the_editor(self):
-        self.portal.footer = somersault_footer(
-            [{"type": "p", "children": [{"text": "footer words"}]}]
-        )
+        self.portal.footer = somersault_footer([
+            {"type": "p", "children": [{"text": "footer words"}]}
+        ])
         view = self._called_view()
         data = view.config()["data"]
         value = data["blocks"][SOMERSAULT_BLOCK_ID]["value"]
@@ -132,24 +129,22 @@ class TestEditFooterView(EditingBase):
             container=self.portal, type="Document", id="imprint", title="Imprint"
         )
         uid = api.content.get_uuid(page)
-        self.portal.footer = somersault_footer(
-            [
-                {
-                    "type": "p",
-                    "children": [
-                        {
-                            "type": "link",
-                            "data": {"url": f"../resolveuid/{uid}"},
-                            "children": [{"text": "imprint"}],
-                        }
-                    ],
-                }
-            ]
-        )
+        self.portal.footer = somersault_footer([
+            {
+                "type": "p",
+                "children": [
+                    {
+                        "type": "link",
+                        "data": {"url": f"../resolveuid/{uid}"},
+                        "children": [{"text": "imprint"}],
+                    }
+                ],
+            }
+        ])
         view = self._called_view()
-        url = view.config()["data"]["blocks"][SOMERSAULT_BLOCK_ID]["value"][0][
-            "children"
-        ][0]["data"]["url"]
+        url = view.config()["data"]["blocks"][SOMERSAULT_BLOCK_ID]["value"][0]["children"][0][
+            "data"
+        ]["url"]
         assert "resolveuid" not in url
         assert url.endswith("/imprint")
 
@@ -209,9 +204,7 @@ class TestFooterSaveService(EditingBase):
         value = [{"type": "p", "children": [{"text": "saved words"}]}]
         self._service(self._save_body(value)).reply()
         assert self.portal.footer["blocks"][SOMERSAULT_BLOCK_ID]["value"] == value
-        assert self.portal.footer["blocks_layout"] == {
-            "items": [SOMERSAULT_BLOCK_ID]
-        }
+        assert self.portal.footer["blocks_layout"] == {"items": [SOMERSAULT_BLOCK_ID]}
         assert self.request.response.getStatus() == 204
 
     def test_save_never_touches_the_site_title(self):
@@ -248,7 +241,9 @@ class TestFooterSaveService(EditingBase):
         from plone.locking.interfaces import ILockable
 
         api.user.create(
-            email="other@example.org", username="other", password="secret123",  # noqa: S106 - test fixture user
+            email="other@example.org",
+            username="other",
+            password="secret123",  # noqa: S106 - test fixture user
         )
         setRoles(self.portal, "other", ["Manager"])
         login(self.portal, "other")
@@ -281,9 +276,7 @@ class TestSaveUrlRedirect(EditingBase):
     def test_browser_get_on_the_save_url_lands_on_the_page_the_author_came_from(
         self,
     ):
-        page = api.content.create(
-            container=self.portal, type="Document", id="page", title="Page"
-        )
+        page = api.content.create(container=self.portal, type="Document", id="page", title="Page")
         self.request.form["origin"] = "/plone/page"
         try:
             view = self.portal.restrictedTraverse("@footerblocks")
@@ -304,25 +297,25 @@ class TestFooterChromePolicy(EditingBase):
         assert self._render(self.portal).strip() == ""
 
     def test_authored_footer_has_no_inline_edit_link(self):
-        self.portal.footer = somersault_footer(
-            [{"type": "p", "children": [{"text": "footer words"}]}]
-        )
+        self.portal.footer = somersault_footer([
+            {"type": "p", "children": [{"text": "footer words"}]}
+        ])
         markup = self._render(self.portal)
         assert "footer words" in markup
         assert "element-footerblocks-edit" not in markup
         assert "@@edit-footer" not in markup
 
     def test_footer_is_hidden_on_its_editing_surface(self):
-        self.portal.footer = somersault_footer(
-            [{"type": "p", "children": [{"text": "words being edited"}]}]
-        )
+        self.portal.footer = somersault_footer([
+            {"type": "p", "children": [{"text": "words being edited"}]}
+        ])
         self.request["ACTUAL_URL"] = f"{self.portal.absolute_url()}/@@edit-footer"
         assert self._render(self.portal).strip() == ""
 
     def test_visitors_still_see_an_authored_footer(self):
-        self.portal.footer = somersault_footer(
-            [{"type": "p", "children": [{"text": "public words"}]}]
-        )
+        self.portal.footer = somersault_footer([
+            {"type": "p", "children": [{"text": "public words"}]}
+        ])
         logout()
         markup = self._render(self.portal)
         assert "public words" in markup

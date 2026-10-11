@@ -94,7 +94,7 @@ class TestPageletPage(PageletPageBase):
     def test_the_viewlet_renders_inside_the_scope_root(self):
         self.portal.footer = footer_value("footer words")
         html = self._page()
-        element = html[html.index(ELEMENT):]
+        element = html[html.index(ELEMENT) :]
         assert element.index("aurora-blocks-view") < element.index("footer words")
 
     def test_an_unauthored_footer_renders_no_element(self):
