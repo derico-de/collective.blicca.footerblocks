@@ -2,8 +2,11 @@
 
 ## 1.0.0a2 (unreleased)
 
+- Add `CODING_STANDARDS.md` for reviews. pre-commit leaves scaffold metadata
+  alone, and the code is ruff-formatted.
 
-- Nothing changed yet.
+- The canvas-exclusion tests enable `volto.blocks` before creating their
+  page: enabled afterwards, the page never became a blocks page.
 
 
 ## 1.0.0a1 (2026-10-04)
