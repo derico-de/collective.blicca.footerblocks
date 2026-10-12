@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0a2 (unreleased)
+## 1.0.0a2 (2026-10-12)
 
 - Add `CODING_STANDARDS.md` for reviews. pre-commit leaves scaffold metadata
   alone, and the code is ruff-formatted.
