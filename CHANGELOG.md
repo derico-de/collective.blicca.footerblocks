@@ -2,8 +2,11 @@
 
 ## 1.0.0a3 (unreleased)
 
-
-- Nothing changed yet.
+- A page links each blocks stylesheet once. The footer's head links come
+  from `plone.blicca.auroraeditor`'s `blocks_css_links`, which leaves out
+  what the page has already linked, so a block page no longer carries every
+  sheet twice. The Aurora edit surfaces get no footer links: they render no
+  footer and link their own. Requires `plone.blicca.auroraeditor>=1.0.0a5`.
 
 
 ## 1.0.0a2 (2026-10-12)

@@ -34,7 +34,7 @@ disappears rather than shipping empty footer-blocks.
 from Acquisition import aq_base
 from Acquisition import aq_chain
 from Acquisition import aq_inner
-from plone.blicca.auroraeditor.rendering import blocks_css_urls
+from plone.blicca.auroraeditor.rendering import blocks_css_links
 from plone.blicca.auroraeditor.rendering import render_blocks
 
 from collective.volto.footer.behaviors.footer import IEditableFooterMarker
@@ -112,13 +112,14 @@ def footer_blocks_html(context, request):
     return html
 
 
-def stylesheet_links(context):
-    """``<link>`` tags for the blocks stylesheets, same URLs, same order.
+def stylesheet_links(context, request):
+    """``<link>`` tags for the blocks stylesheets this page has not linked yet.
 
-    ``blocks_view.pt`` emits these in its head slot — on blocks pages only.
-    The footer renders blocks on *every* page, so every page's head gets the
-    same links (busted URLs, contract §6.3). On a blocks page they then
-    appear twice; the URLs are identical, so the browser fetches once and
-    the idempotent rules apply once effectively.
+    The footer renders blocks on *every* page, so every page's head asks for
+    them. On a blocks page the blocks view asks too, and whichever renders
+    first links them: each stylesheet once per page (contract §6.3). The
+    edit surfaces render no footer and link their own, in their own order.
     """
-    return "".join(f'<link rel="stylesheet" href="{url}" />' for url in blocks_css_urls(context))
+    if is_edit_surface(request):
+        return ""
+    return blocks_css_links(context, request)

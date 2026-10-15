@@ -33,4 +33,4 @@ class FooterBlocksStylesViewlet(ViewletBase):
         pass
 
     def render(self):
-        return stylesheet_links(self.context)
+        return stylesheet_links(self.context, self.request)

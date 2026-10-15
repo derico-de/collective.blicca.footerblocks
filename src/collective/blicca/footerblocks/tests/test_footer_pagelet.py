@@ -64,6 +64,10 @@ class PageletPageBase:
     def _page(self, context=None, name="pagelet_view"):
         return (context or self.portal.somewhere).restrictedTraverse(name)()
 
+    def _head(self, context=None, name="pagelet_view"):
+        html = self._page(context, name)
+        return html[: html.index("</head>")]
+
     def _provider(self, name):
         view = self.portal.restrictedTraverse("@@plone")
         provider = getMultiAdapter(
@@ -124,6 +128,22 @@ class TestStyles(PageletPageBase):
         html = self._page()
         head = html[: html.index("</head>")]
         assert head.count(BLOCKS_CSS) == 1
+
+    def test_a_blocks_page_head_gets_the_blocks_css_once(self):
+        # The blocks view links the sheets too; whichever renders first does.
+        self.portal.footer = footer_value("footer words")
+        page = self.portal.somewhere
+        body = footer_value("page words")
+        page.blocks, page.blocks_layout = body["blocks"], body["blocks_layout"]
+        assert self._head(page, "@@aurora-blocks-view").count(BLOCKS_CSS) == 1
+
+    def test_the_blocks_canvas_head_gets_the_blocks_css_once(self):
+        # No footer on an edit surface, so none of its links either: the
+        # surface links its own, after the editor's stylesheet.
+        self.portal.footer = footer_value("footer words")
+        page = self.portal.somewhere
+        self.request["ACTUAL_URL"] = f"{page.absolute_url()}/@@aurora-edit"
+        assert self._head(page, "@@aurora-edit").count(BLOCKS_CSS) == 1
 
     def test_a_pageletlayout_request_without_the_addon_gets_the_base_output(self):
         # A second site in the same instance, pageletlayout but no

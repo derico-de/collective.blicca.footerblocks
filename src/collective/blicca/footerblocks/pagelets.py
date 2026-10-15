@@ -26,5 +26,5 @@ class FooterStylesChromePagelet(StylesChromePagelet):
     def render(self):
         markup = super().render()
         if ICollectiveBliccaFooterblocksLayer.providedBy(self.request):
-            markup += stylesheet_links(self.context)
+            markup += stylesheet_links(self.context, self.request)
         return markup
