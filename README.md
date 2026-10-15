@@ -67,7 +67,8 @@ profile. Installing it:
   `plone.pageletlayout` site the same element is placed in the page layout,
   directly above the copyright, colophon and site-actions rows;
 - makes every page load the blocks stylesheets, so footer blocks are styled
-  on pages that are not block pages themselves.
+  on pages that are not block pages themselves. A block page links each
+  stylesheet once, not once for its body and again for the footer.
 
 
 ## Editing the footer
@@ -194,7 +195,9 @@ through `.element-footerblocks`.
   redirects to the page the author came from (the `origin` parameter the tab
   sends along), or to the carrier, after save or cancel.
 - **Stylesheets.** On stock Plone an `IHtmlHead` viewlet emits the blocks
-  stylesheet links.
+  stylesheet links, on plone.pageletlayout the head styles provider. Both
+  take them from `blocks_css_links`, which leaves out what the page has
+  already linked, and both stay empty on the Aurora edit surfaces.
 
 ## Development
 
