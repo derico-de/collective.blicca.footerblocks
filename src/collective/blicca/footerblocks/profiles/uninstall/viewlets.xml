@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object>
+  <order manager="plone.portalfooter" skinname="Plone Default">
+    <viewlet name="collective.blicca.footerblocks.footerblocks"
+             remove="True"
+    />
+  </order>
+</object>
